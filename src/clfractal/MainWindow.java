@@ -41,7 +41,7 @@ public class MainWindow extends javax.swing.JFrame implements ActionListener,
 	private JCheckBox checkGlsharing, checkHighPrecision;
 
 	private static final String iterTxt = "Iterations: ";
-	private static final String version = "1.0";
+	private static final String version = "1.0a";
 
 	private final float moveFactor = 0.2f;
 	private final float zoomFactor = 1.4f;
@@ -55,7 +55,8 @@ public class MainWindow extends javax.swing.JFrame implements ActionListener,
 					comboDeviceList.getSelectedIndex());
 			lblInfobar.setText("Pos: (" + fractalCalc.getPosx() + ", "
 					+ fractalCalc.getPosy() + ") | Zoom: "
-					+ fractalCalc.getZoom() + " | Device: " + devicename
+					+ fractalCalc.getZoom() + " | Screen: "
+					+ imagePanel.getWidth() + "x" + imagePanel.getHeight()
 					+ " | Execution time (ms): "
 					+ fractalCalc.getLastExecTime());
 		}
