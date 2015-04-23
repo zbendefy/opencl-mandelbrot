@@ -38,8 +38,6 @@ __kernel void mandelbrot(__global __read_only const int *intParams, __global __r
 	{ 
 		const RealNumber x2 = previous.r * previous.r;
 		const RealNumber y2 = previous.i * previous.i;
-		sum.r = (x2 - y2) + C.r; 
-		sum.i = (previous.i * previous.r * 2) + C.i; 
 		 
 		if (x2 + y2 > 4)  //spares the sqrt function by using 4 instead of 2
 		{ 
@@ -47,6 +45,9 @@ __kernel void mandelbrot(__global __read_only const int *intParams, __global __r
 			output[imgid] = (char)((155.0f * stoppedPercentage) -28.0f); 
 			return;
 		} 
+		
+		sum.r = (x2 - y2) + C.r; 
+		sum.i = (previous.i * previous.r * 2) + C.i; 
 		 
 		previous.r = sum.r; 
 		previous.i = sum.i; 
