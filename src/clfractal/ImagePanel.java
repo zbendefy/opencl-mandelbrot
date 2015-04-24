@@ -29,7 +29,7 @@ public class ImagePanel extends JPanel {
 
 		byte[] ret = new byte[256];
 		for (int i = 0; i < ret.length; i++) {
-			ret[i] = (byte) (i - 128);
+			ret[i] = (byte) (i - 128) ;
 		}
 		return ret;
 	}
@@ -64,7 +64,6 @@ public class ImagePanel extends JPanel {
 					BufferedImage.TYPE_BYTE_INDEXED, icm);
 			lastHeight = height;
 			lastWidth = width;
-			System.out.println("imagebuffer recreated");
 		}
 	}
 
