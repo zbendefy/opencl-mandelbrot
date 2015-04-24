@@ -279,7 +279,7 @@ public class MainWindow extends javax.swing.JFrame implements ActionListener,
 		layout.putConstraint(SpringLayout.EAST, btnZoomOut, -105,
 				SpringLayout.EAST, contentPane);
 
-		sliderIterationLevel = new JSlider(0, 1, 60, 5);
+		sliderIterationLevel = new JSlider(0, 1, 60, 7);
 		mainFrame.add(sliderIterationLevel);
 		sliderIterationLevel.addChangeListener((ChangeListener) this);
 		layout.putConstraint(SpringLayout.NORTH, sliderIterationLevel, 55,

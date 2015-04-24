@@ -23,7 +23,12 @@ public class FractalCalc {
 
 	private CLContext context = null;
 	private CLKernel kernel = null;
-	private static cl_mem memObjects[];
+	private static cl_mem memObjects[] = new cl_mem[3];
+	
+	int srcArrayA[] = new int[3];
+	float srcArrayB[] = new float[4];
+	double srcArrayB_D[] = new double[4];
+	long global_work_size[] = new long[] { 0,0 };
 
 	private int platformid, deviceid;
 
@@ -78,9 +83,6 @@ public class FractalCalc {
 
 		long time1 = System.nanoTime();
 		
-		int srcArrayA[] = new int[3];
-		float srcArrayB[] = new float[4];
-		double srcArrayB_D[] = new double[4];
 		byte dstArray[] = pic.getImageByteArray();
 
 		srcArrayA[0] = Iterations; // 50 iterations
@@ -96,14 +98,9 @@ public class FractalCalc {
 		srcArrayB_D[3] = (double) height / (double) width; // aspect ratio
 
 		Pointer srcA = Pointer.to(srcArrayA);
-		Pointer srcB;
-		if (highPrecision)
-			srcB = Pointer.to(srcArrayB_D);
-		else
-			srcB = Pointer.to(srcArrayB);
+		Pointer srcB = highPrecision ? Pointer.to(srcArrayB_D) : Pointer.to(srcArrayB);
 		Pointer dst = Pointer.to(dstArray);
 
-		memObjects = new cl_mem[3];
 		memObjects[0] = clCreateBuffer(context.getContext(), CL_MEM_READ_ONLY
 				| CL_MEM_COPY_HOST_PTR, Sizeof.cl_int * 3, srcA, null);
 		memObjects[1] = clCreateBuffer(context.getContext(), CL_MEM_READ_ONLY
@@ -117,7 +114,8 @@ public class FractalCalc {
 					Pointer.to(memObjects[i]));
 		}
 
-		long global_work_size[] = new long[] { width, height };
+		global_work_size[0] = width;
+		global_work_size[1] = height;
 
 		long time2 = System.nanoTime();
 		
@@ -131,6 +129,7 @@ public class FractalCalc {
 		
 		for (int i = 0; i < memObjects.length; i++) {
 			clReleaseMemObject(memObjects[i]);
+			memObjects[i] = null;
 		}
 
 		lastTotalTime = time4 - time1;

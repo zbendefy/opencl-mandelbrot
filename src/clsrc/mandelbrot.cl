@@ -41,8 +41,7 @@ __kernel void mandelbrot(__global __read_only const int *intParams, __global __r
 		 
 		if (x2 + y2 > 4)  //spares the sqrt function by using 4 instead of 2
 		{ 
-			const float stoppedPercentage = (((float)i) / ((float)((iterationLimit)))); 
-			output[imgid] = (char)((155.0f * stoppedPercentage) -28.0f); 
+			output[imgid] = ((i * 155) / iterationLimit) - 28;
 			return;
 		} 
 		
