@@ -219,11 +219,11 @@ public class FractalCalc {
 	}
 
 	public long getLastExecTime() {
-		return lastExecTime / 1000;
+		return lastExecTime / 1000000;
 	}
 
 	public long getLastTotalTime() {
-		return lastTotalTime / 1000;
+		return lastTotalTime / 1000000;
 	}
 
 	public int getPlatformid() {
