@@ -17,7 +17,7 @@ public class CLSources {
 		return ret;
 	}
 	
-	public static String getMandelbrotSource()
+	public static String getSource()
 	{
 		String file = readLocalFile("/clsrc/mandelbrot.cl");
 		
@@ -34,6 +34,4 @@ public class CLSources {
 	public static void setUse64Bit(boolean use64Bit) {
 		CLSources.use64Bit = use64Bit;
 	}
-	
-	
 }
