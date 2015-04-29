@@ -25,7 +25,7 @@ public class ImagePanel extends JPanel {
 	}
 
 	static byte[] getGradientList() {
-		// order: black: 0,1,2...126,127,-128,-127,-126...-2,-1
+		// order: black: 0,1,2...126,127,-128,-127,-126...-2,-1 :white
 
 		byte[] ret = new byte[256];
 		for (int i = 0; i < ret.length; i++) {
@@ -36,11 +36,13 @@ public class ImagePanel extends JPanel {
 
 	private static final byte[] zList = getZeroList();
 	private static final byte[] bList = getGradientList();
+	private IndexColorModel icm;
 
 	public BufferedImage image;
 
 	public ImagePanel() {
-
+		icm = new IndexColorModel(8, 256, zList, zList,
+				bList);
 	}
 
 	@Override
@@ -58,8 +60,6 @@ public class ImagePanel extends JPanel {
 
 		if (width != lastWidth || height != lastHeight)
 		{
-			IndexColorModel icm = new IndexColorModel(8, 256, zList, zList,
-					bList);
 			image = new BufferedImage(width, height,
 					BufferedImage.TYPE_BYTE_INDEXED, icm);
 			lastHeight = height;

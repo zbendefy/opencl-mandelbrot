@@ -29,7 +29,7 @@ typedef struct Complex {
  
  //intParams[0,1,2] = 0:iteration limit, 1: image width, 2: image height 
  //realParams[0,1,2,3] = 0: pan x, 1: pan y, 2: zoom factor, 3: aspectRatio
-__kernel void mandelbrot(__global __read_only const int *intParams, __global __read_only const RealNumber *realParams, __global __write_only char *output) 
+__kernel void mandelbrot(__constant const int *intParams, __constant const RealNumber *realParams, __global __write_only char *output) 
 { 
 	Complex C; 
 	Complex sum; 
@@ -75,7 +75,7 @@ __kernel void mandelbrot(__global __read_only const int *intParams, __global __r
 
 //intParams[0,1,2] = 0:iteration limit, 1: image width, 2: image height 
  //realParams[0,1,2,3] = 0: pan x, 1: pan y, 2: zoom factor, 3: aspectRatio, 4-5: julia parameters
-__kernel void julia(__global __read_only const int *intParams, __global __read_only const RealNumber *realParams, __global __write_only char *output) 
+__kernel void julia(__constant const int *intParams, __constant const RealNumber *realParams, __global __write_only char *output) 
 { 
 	Complex C; 
 	Complex sum; 
@@ -122,7 +122,7 @@ __kernel void julia(__global __read_only const int *intParams, __global __read_o
 
  //intParams[0,1,2] = 0:iteration limit, 1: image width, 2: image height, 3: exponent
  //realParams[0,1,2,3] = 0: pan x, 1: pan y, 2: zoom factor, 3: aspectRatio
-__kernel void mandelbrotN(__global __read_only const int *intParams, __global __read_only const RealNumber *realParams, __global __write_only char *output) 
+__kernel void mandelbrotN(__constant const int *intParams, __constant const RealNumber *realParams, __global __write_only char *output) 
 { 
 	Complex C; 
 	Complex sum; 
@@ -165,7 +165,7 @@ __kernel void mandelbrotN(__global __read_only const int *intParams, __global __
 
 //intParams[0,1,2] = 0:iteration limit, 1: image width, 2: image height, 3: exponent
  //realParams[0,1,2,3] = 0: pan x, 1: pan y, 2: zoom factor, 3: aspectRatio, 4-5: julia parameters
-__kernel void juliaN(__global __read_only const int *intParams, __global __read_only const RealNumber *realParams, __global __write_only char *output) 
+__kernel void juliaN(__constant const int *intParams, __constant const RealNumber *realParams, __global __write_only char *output) 
 { 
 	Complex C; 
 	Complex sum; 

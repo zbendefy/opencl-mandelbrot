@@ -109,8 +109,6 @@ public class FractalCalc {
 
 		long time1 = System.nanoTime();
 
-		byte dstArray[] = pic.getImageByteArray();
-
 		srcArrayA[0] = Iterations; // 50 iterations
 		srcArrayA[1] = pic.getSize().width; // resx
 		srcArrayA[2] = pic.getSize().height; // resy
@@ -131,7 +129,7 @@ public class FractalCalc {
 		Pointer srcA = Pointer.to(srcArrayA);
 		Pointer srcB = highPrecision ? Pointer.to(srcArrayB_D) : Pointer
 				.to(srcArrayB);
-		Pointer dst = Pointer.to(dstArray);
+		Pointer dst = Pointer.to(pic.getImageByteArray());
 
 		memObjects[0] = clCreateBuffer(context.getContext(), CL_MEM_READ_ONLY
 				| CL_MEM_COPY_HOST_PTR, Sizeof.cl_int * srcArrayA.length, srcA,
@@ -158,15 +156,15 @@ public class FractalCalc {
 		clEnqueueReadBuffer(context.getCommandQueue(), memObjects[2], CL_TRUE,
 				0, width * height * Sizeof.cl_char, dst, 0, null, null);
 
-		long time4 = System.nanoTime();
+		long time3 = System.nanoTime();
 
 		for (int i = 0; i < memObjects.length; i++) {
 			clReleaseMemObject(memObjects[i]);
 			memObjects[i] = null;
 		}
 
-		lastTotalTime = time4 - time1;
-		lastExecTime = time4 - time2;
+		lastTotalTime = time3 - time1;
+		lastExecTime = time3 - time2;
 
 		pic.repaint();
 	}

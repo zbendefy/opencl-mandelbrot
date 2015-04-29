@@ -45,7 +45,7 @@ public class MainWindow extends javax.swing.JFrame implements ActionListener,
 	private JCheckBox switchFractalMode, checkHighPrecision;
 
 	private static final String iterTxt = "Iterations: ";
-	private static final String version = "1.1";
+	private static final String version = "1.1a";
 
 	private final float moveFactor = 0.2f;
 	private final float zoomFactor = 1.4f;
@@ -69,7 +69,7 @@ public class MainWindow extends javax.swing.JFrame implements ActionListener,
 
 	MainWindow() {
 
-		mainFrame = new JFrame("OpenCL Mandelbrot viewer" + version);
+		mainFrame = new JFrame("OpenCL Mandelbrot viewer " + version);
 		mainFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		SpringLayout layout = new SpringLayout();
 		mainFrame.setMinimumSize(new Dimension(590, 200));
@@ -431,7 +431,6 @@ public class MainWindow extends javax.swing.JFrame implements ActionListener,
 
 		populateDeviceList();
 		recreateCalculator(0, 0);
-		checkHWSupport(0, 0);
 		RedrawView();
 		imagePanel.requestFocus();
 	}
@@ -454,8 +453,10 @@ public class MainWindow extends javax.swing.JFrame implements ActionListener,
 			fractalCalc.deleteResources();
 			fractalCalc = null;
 		}
+		
 		checkHighPrecision.setSelected(false);
-
+		checkHWSupport(pid, did);
+		
 		try {
 			fractalCalc = new FractalCalc(imagePanel, pid, did);
 			if (state != null) {
@@ -473,13 +474,10 @@ public class MainWindow extends javax.swing.JFrame implements ActionListener,
 		if (e.getSource().equals(comboPlatformList)) {
 			recreateCalculator(comboPlatformList.getSelectedIndex(), 0);
 			populateDeviceList();
-			checkHWSupport(comboPlatformList.getSelectedIndex(), 0);
 			RedrawView();
 		}
 		if (e.getSource().equals(comboDeviceList)) {
 			recreateCalculator(comboPlatformList.getSelectedIndex(),
-					comboDeviceList.getSelectedIndex());
-			checkHWSupport(comboPlatformList.getSelectedIndex(),
 					comboDeviceList.getSelectedIndex());
 			RedrawView();
 		}
