@@ -416,11 +416,11 @@ public class MainWindow extends javax.swing.JFrame implements ActionListener,
 					} else if (e.getKeyCode() == KeyEvent.VK_DOWN) {
 						fractalCalc.modPosy(moveFactor * 0.1f);
 						RedrawView();
-					} else if (e.getKeyCode() == KeyEvent.VK_PLUS
+					} else if (e.getKeyCode() == KeyEvent.VK_ADD
 							|| e.getKeyCode() == KeyEvent.VK_PAGE_DOWN) {
 						fractalCalc.setZoom(fractalCalc.getZoom() / zoomFactor);
 						RedrawView();
-					} else if (e.getKeyCode() == KeyEvent.VK_MINUS
+					} else if (e.getKeyCode() == KeyEvent.VK_SUBTRACT
 							|| e.getKeyCode() == KeyEvent.VK_PAGE_UP) {
 						fractalCalc.setZoom(fractalCalc.getZoom() * zoomFactor);
 						RedrawView();
