@@ -87,7 +87,7 @@ public class FractalCalc {
 			try {
 				String kernelname = fractalMode == FractalModes.JULIA ? "julia"
 						: "mandelbrot";
-				if (exponent > 2) {
+				if (exponent != 2) {
 					kernelname += "N";
 				}
 				kernel = new CLKernel(context, kernelname,

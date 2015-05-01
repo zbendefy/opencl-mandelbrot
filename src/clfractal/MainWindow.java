@@ -45,7 +45,7 @@ public class MainWindow extends javax.swing.JFrame implements ActionListener,
 	private JCheckBox switchFractalMode, checkHighPrecision;
 
 	private static final String iterTxt = "Iterations: ";
-	private static final String version = "1.1a";
+	private static final String version = "1.1b";
 
 	private final float moveFactor = 0.2f;
 	private final float zoomFactor = 1.4f;
@@ -317,7 +317,7 @@ public class MainWindow extends javax.swing.JFrame implements ActionListener,
 				SpringLayout.WEST, sliderIterationLevel);
 		layout.putConstraint(SpringLayout.EAST, checkHighPrecision, 75,
 				SpringLayout.WEST, sliderIterationLevel);
-		
+
 		switchFractalMode = new JCheckBox("Julia mode");
 		switchFractalMode.addActionListener(this);
 		mainFrame.add(switchFractalMode);
@@ -340,7 +340,7 @@ public class MainWindow extends javax.swing.JFrame implements ActionListener,
 				SpringLayout.EAST, switchFractalMode);
 		layout.putConstraint(SpringLayout.EAST, lblExponent, -60,
 				SpringLayout.WEST, btnZoomIn);
-		
+
 		comboFractalType = new JComboBox<Integer>();
 		comboFractalType.addActionListener(this);
 		mainFrame.add(comboFractalType);
@@ -353,7 +353,7 @@ public class MainWindow extends javax.swing.JFrame implements ActionListener,
 		layout.putConstraint(SpringLayout.EAST, comboFractalType, -10,
 				SpringLayout.WEST, btnZoomIn);
 		populateFractalModesList();
-		//comboFractalType.setVisible(false);
+		// comboFractalType.setVisible(false);
 
 		lblInfobar = new JLabel("Loading...");
 		mainFrame.add(lblInfobar);
@@ -453,10 +453,10 @@ public class MainWindow extends javax.swing.JFrame implements ActionListener,
 			fractalCalc.deleteResources();
 			fractalCalc = null;
 		}
-		
+
 		checkHighPrecision.setSelected(false);
 		checkHWSupport(pid, did);
-		
+
 		try {
 			fractalCalc = new FractalCalc(imagePanel, pid, did);
 			if (state != null) {
@@ -482,18 +482,25 @@ public class MainWindow extends javax.swing.JFrame implements ActionListener,
 			RedrawView();
 		}
 		if (e.getSource().equals(checkHighPrecision)) {
-			fractalCalc.setHighPrecision(checkHighPrecision.isSelected());
-			RedrawView();
+			if (fractalCalc != null) {
+				fractalCalc.setHighPrecision(checkHighPrecision.isSelected());
+				RedrawView();
+			}
 		}
 		if (e.getSource().equals(switchFractalMode)) {
-			fractalCalc
-					.switchMode(switchFractalMode.isSelected() ? FractalModes.JULIA
-							: FractalModes.MANDELBROT);
-			RedrawView();
+			if (fractalCalc != null) {
+				fractalCalc
+						.switchMode(switchFractalMode.isSelected() ? FractalModes.JULIA
+								: FractalModes.MANDELBROT);
+				RedrawView();
+			}
 		}
 		if (e.getSource().equals(comboFractalType)) {
-			fractalCalc.setExponent((int) comboFractalType.getSelectedItem());
-			RedrawView();
+			if (fractalCalc != null) {
+				fractalCalc.setExponent((int) comboFractalType
+						.getSelectedItem());
+				RedrawView();
+			}
 		}
 	}
 
@@ -518,10 +525,16 @@ public class MainWindow extends javax.swing.JFrame implements ActionListener,
 
 	private void populateFractalModesList() {
 		DefaultComboBoxModel<Integer> m = new DefaultComboBoxModel<Integer>();
+		int beginIndex = 0;
+		/*for (int i = -6; i <= -2; i++) {
+			m.addElement(i);
+			beginIndex++;
+		}*/
 		for (int i = 2; i <= 16; i++) {
 			m.addElement(i);
 		}
 		comboFractalType.setModel(m);
+		comboFractalType.setSelectedIndex(beginIndex);
 	}
 
 	public void RedrawView() {

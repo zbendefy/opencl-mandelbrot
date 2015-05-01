@@ -15,6 +15,11 @@ typedef struct Complex {
  	return ret;
  }
  
+ RealNumber cLength(Complex c)
+ {
+ 	return sqrt(c.r*c.r+c.i*c.i);
+ }
+ 
  Complex cPow(Complex c1, int exp)
  {
  	Complex ret = c1;
@@ -25,8 +30,19 @@ typedef struct Complex {
  	return ret;
  }
  
+ Complex cDiv(Complex c1, Complex c2)
+ {
+	Complex top;
+	top.r = c1.r;
+	top.i = -c1.i;
+	RealNumber bottom = cLength(c2);
+	top.r /= bottom;
+	top.i /= bottom;
+	return top;
+
+ }
  
- 
+  
  //intParams[0,1,2] = 0:iteration limit, 1: image width, 2: image height 
  //realParams[0,1,2,3] = 0: pan x, 1: pan y, 2: zoom factor, 3: aspectRatio
 __kernel void mandelbrot(__constant const int *intParams, __constant const RealNumber *realParams, __global __write_only char *output) 
@@ -145,7 +161,8 @@ __kernel void mandelbrotN(__constant const int *intParams, __constant const Real
 	 
 	for (uint i = 0; i < iterationLimit; i++) 
 	{ 
-		Complex z_n = cPow(previous, exponent);
+		Complex z_n; 
+		z_n = cPow(previous, exponent);
 		
 		sum.r = z_n.r + C.r;
 		sum.i = z_n.i + C.i;
