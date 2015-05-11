@@ -45,7 +45,7 @@ public class MainWindow extends javax.swing.JFrame implements ActionListener,
 	private JCheckBox switchFractalMode, checkHighPrecision;
 
 	private static final String iterTxt = "Iterations: ";
-	private static final String version = "1.1b";
+	private static final String version = "1.1c";
 
 	private final float moveFactor = 0.2f;
 	private final float zoomFactor = 1.4f;
@@ -540,7 +540,9 @@ public class MainWindow extends javax.swing.JFrame implements ActionListener,
 	public void RedrawView() {
 		if (fractalCalc != null) {
 			try {
-				fractalCalc.updateImage();
+				imagePanel.updateImageSize();
+				fractalCalc.updateImage(imagePanel.getWidth(), imagePanel.getHeight(), imagePanel.getImageByteArray());
+				imagePanel.repaint();
 			} catch (Exception e) {
 				e.printStackTrace(System.err);
 			}

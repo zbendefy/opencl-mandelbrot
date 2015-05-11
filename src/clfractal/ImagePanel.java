@@ -10,6 +10,8 @@ import javax.swing.JPanel;
 
 public class ImagePanel extends JPanel {
 
+	private static final boolean isRGB = false;
+
 	private int lastWidth = -1, lastHeight = -1;
 	/**
 	 * 
@@ -29,7 +31,7 @@ public class ImagePanel extends JPanel {
 
 		byte[] ret = new byte[256];
 		for (int i = 0; i < ret.length; i++) {
-			ret[i] = (byte) (i - 128) ;
+			ret[i] = (byte) (i - 128);
 		}
 		return ret;
 	}
@@ -41,14 +43,14 @@ public class ImagePanel extends JPanel {
 	public BufferedImage image;
 
 	public ImagePanel() {
-		icm = new IndexColorModel(8, 256, zList, zList,
-				bList);
+		if (!isRGB) {
+			icm = new IndexColorModel(8, 256, zList, zList, bList);
+		}
 	}
 
 	@Override
 	protected void paintComponent(Graphics g) {
 		super.paintComponent(g);
-
 		g.drawImage(image, 0, 0, null);
 	}
 
@@ -56,18 +58,23 @@ public class ImagePanel extends JPanel {
 		invalidate();
 	}
 
-	public void updateImageSize(int width, int height) {
-
-		if (width != lastWidth || height != lastHeight)
-		{
-			image = new BufferedImage(width, height,
-					BufferedImage.TYPE_BYTE_INDEXED, icm);
-			lastHeight = height;
-			lastWidth = width;
+	public void updateImageSize() {
+		
+		if (this.getWidth() != lastWidth || this.getHeight() != lastHeight) {
+			if (isRGB) {
+				image = new BufferedImage(this.getWidth(), this.getHeight(),
+						BufferedImage.TYPE_INT_RGB, null);
+			} else {
+				image = new BufferedImage(this.getWidth(), this.getHeight(),
+						BufferedImage.TYPE_BYTE_INDEXED, icm);
+			}
+			lastHeight = this.getHeight();
+			lastWidth = this.getWidth();
 		}
 	}
 
 	public byte[] getImageByteArray() {
+		if (image == null) updateImageSize();
 		DataBuffer toArray = image.getRaster().getDataBuffer();
 		return ((DataBufferByte) toArray).getData();
 	}

@@ -23,7 +23,6 @@ public class FractalCalc {
 	private double posx = 0, posy = 0, zoom = 2.0f;
 	private double savedposx = 0, savedposy = 0, savedzoom = 2.0f;
 	private double juliaposx, juliaposy;
-	private ImagePanel pic = null;
 	private boolean highPrecision = false;
 	private boolean GLSharing = false;
 	private long lastExecTime;
@@ -44,7 +43,6 @@ public class FractalCalc {
 			throws Exception {
 		this.platformid = platformid;
 		this.deviceid = deviceid;
-		this.pic = img;
 		highPrecision = false;
 		CLSources.setUse64Bit(highPrecision);
 		fractalMode = FractalModes.MANDELBROT;
@@ -70,7 +68,7 @@ public class FractalCalc {
 		exponent = (int) state[9];
 	}
 
-	public void updateImage() throws Exception {
+	public void updateImage(int width, int height, byte[] result) throws Exception {
 		if (context == null) {
 			try {
 				context = CLContext.createContext(platformid, deviceid);
@@ -101,17 +99,13 @@ public class FractalCalc {
 			}
 		}
 
-		int width = pic.getSize().width;
-		int height = pic.getSize().height;
 		int n = width * height;
-
-		pic.updateImageSize(width, height);
 
 		long time1 = System.nanoTime();
 
 		srcArrayA[0] = Iterations; // 50 iterations
-		srcArrayA[1] = pic.getSize().width; // resx
-		srcArrayA[2] = pic.getSize().height; // resy
+		srcArrayA[1] = width; // resx
+		srcArrayA[2] = height; // resy
 		srcArrayA[3] = exponent; // resy
 		srcArrayB[0] = (float) posx; // posx
 		srcArrayB[1] = (float) posy; // posy
@@ -129,7 +123,7 @@ public class FractalCalc {
 		Pointer srcA = Pointer.to(srcArrayA);
 		Pointer srcB = highPrecision ? Pointer.to(srcArrayB_D) : Pointer
 				.to(srcArrayB);
-		Pointer dst = Pointer.to(pic.getImageByteArray());
+		Pointer dst = Pointer.to(result);
 
 		memObjects[0] = clCreateBuffer(context.getContext(), CL_MEM_READ_ONLY
 				| CL_MEM_COPY_HOST_PTR, Sizeof.cl_int * srcArrayA.length, srcA,
@@ -165,8 +159,6 @@ public class FractalCalc {
 
 		lastTotalTime = time3 - time1;
 		lastExecTime = time3 - time2;
-
-		pic.repaint();
 	}
 
 	public void deleteResources() {
@@ -217,15 +209,6 @@ public class FractalCalc {
 	public void setZoom(double zoom) {
 		if (zoom > 0 && zoom < 25)
 			this.zoom = zoom;
-	}
-
-	public ImagePanel getPic() {
-		return pic;
-	}
-
-	public void setPic(ImagePanel pic) {
-		if (pic != null)
-			this.pic = pic;
 	}
 
 	public boolean isHighPrecision() {
