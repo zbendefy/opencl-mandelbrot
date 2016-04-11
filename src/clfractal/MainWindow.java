@@ -45,7 +45,7 @@ public class MainWindow extends javax.swing.JFrame implements ActionListener,
 	private JCheckBox switchFractalMode, checkHighPrecision;
 
 	private static final String iterTxt = "Iterations: ";
-	private static final String version = "1.1c";
+	private static final String version = "1.2";
 
 	private final float moveFactor = 0.2f;
 	private final float zoomFactor = 1.4f;
