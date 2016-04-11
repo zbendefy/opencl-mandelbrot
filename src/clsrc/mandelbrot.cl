@@ -23,7 +23,7 @@ typedef struct Complex {
  Complex cPow(Complex c1, int exp)
  {
  	Complex ret = c1;
- 	for(int i = 1; i < exp; i++)
+ 	for(int i = 1; i < exp; ++i)
  	{
  		ret = cMul(ret, c1);
  	}
@@ -68,7 +68,7 @@ __kernel void mandelbrot(__constant const int *intParams, __constant const RealN
 	 
 	const uint iterationLimit = intParams[0]+1;
 	 
-	for (uint i = 0; i < iterationLimit; i++) 
+	for (uint i = 0; i < iterationLimit; ++i) 
 	{ 
 		const RealNumber x2 = previous.r * previous.r;
 		const RealNumber y2 = previous.i * previous.i;
@@ -114,7 +114,7 @@ __kernel void julia(__constant const int *intParams, __constant const RealNumber
 	 
 	const uint iterationLimit = intParams[0]+1;
 	 
-	for (uint i = 0; i < iterationLimit; i++) 
+	for (uint i = 0; i < iterationLimit; ++i) 
 	{ 
 		const RealNumber x2 = previous.r * previous.r;
 		const RealNumber y2 = previous.i * previous.i;
@@ -159,7 +159,7 @@ __kernel void mandelbrotN(__constant const int *intParams, __constant const Real
 	const uint iterationLimit = intParams[0]+1;
 	const int exponent = intParams[3];
 	 
-	for (uint i = 0; i < iterationLimit; i++) 
+	for (uint i = 0; i < iterationLimit; ++i) 
 	{ 
 		Complex z_n; 
 		z_n = cPow(previous, exponent);
@@ -206,7 +206,7 @@ __kernel void juliaN(__constant const int *intParams, __constant const RealNumbe
 	const uint iterationLimit = intParams[0]+1;
 	const int exponent = intParams[3];
 	 
-	for (uint i = 0; i < iterationLimit; i++) 
+	for (uint i = 0; i < iterationLimit; ++i) 
 	{ 
 		Complex z_n = cPow(previous, exponent);
 		

@@ -1,6 +1,10 @@
 package clfractal;
 
 import java.awt.Graphics;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseMotionListener;
+import java.awt.event.MouseWheelEvent;
+import java.awt.event.MouseWheelListener;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBuffer;
 import java.awt.image.DataBufferByte;
@@ -8,10 +12,12 @@ import java.awt.image.IndexColorModel;
 
 import javax.swing.JPanel;
 
-public class ImagePanel extends JPanel {
+public class ImagePanel extends JPanel implements MouseMotionListener, MouseWheelListener {
 
 	private static final boolean isRGB = false;
-
+	private IMouseEvents mouseEventListener = null;
+	private int lastX = 0, lastY = 0;
+	
 	private int lastWidth = -1, lastHeight = -1;
 	/**
 	 * 
@@ -77,6 +83,37 @@ public class ImagePanel extends JPanel {
 		if (image == null) updateImageSize();
 		DataBuffer toArray = image.getRaster().getDataBuffer();
 		return ((DataBufferByte) toArray).getData();
+	}
+
+	public void SetMouseListener(IMouseEvents listener)
+	{
+		mouseEventListener = listener;
+		addMouseMotionListener(this);
+		addMouseWheelListener(this);
+	}
+	
+	@Override
+	public void mouseDragged(MouseEvent e) {
+		if (mouseEventListener != null)
+		{
+			mouseEventListener.OnDragView(e.getX() - lastX, e.getY() - lastY);
+		}
+		lastX = e.getX();
+		lastY = e.getY();
+	}
+
+	@Override
+	public void mouseMoved(MouseEvent e) {
+		lastX = e.getX();
+		lastY = e.getY();
+	}
+
+	@Override
+	public void mouseWheelMoved(MouseWheelEvent ev) {
+		if (mouseEventListener != null)
+		{
+			mouseEventListener.OnWheelEvent(ev.getWheelRotation());
+		}
 	}
 
 }

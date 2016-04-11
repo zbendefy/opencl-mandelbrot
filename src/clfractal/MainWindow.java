@@ -27,7 +27,7 @@ import clfractal.FractalCalc.FractalModes;
 import clframework.common.CLUtils;
 
 public class MainWindow extends javax.swing.JFrame implements ActionListener,
-		ChangeListener {
+		ChangeListener, IMouseEvents {
 
 	private JFrame mainFrame;
 	private ImagePanel imagePanel;
@@ -124,6 +124,7 @@ public class MainWindow extends javax.swing.JFrame implements ActionListener,
 				SpringLayout.WEST, comboDeviceList);
 
 		imagePanel = new ImagePanel();
+		imagePanel.SetMouseListener(this);
 		mainFrame.add(imagePanel);
 		layout.putConstraint(SpringLayout.NORTH, imagePanel, 10,
 				SpringLayout.SOUTH, comboDeviceList);
@@ -327,7 +328,7 @@ public class MainWindow extends javax.swing.JFrame implements ActionListener,
 				SpringLayout.NORTH, lblIter);
 		layout.putConstraint(SpringLayout.WEST, switchFractalMode, 5,
 				SpringLayout.EAST, checkHighPrecision);
-		layout.putConstraint(SpringLayout.EAST, switchFractalMode, 110,
+		layout.putConstraint(SpringLayout.EAST, switchFractalMode, 100,
 				SpringLayout.EAST, checkHighPrecision);
 
 		lblExponent = new JLabel("Exponent:");
@@ -336,7 +337,7 @@ public class MainWindow extends javax.swing.JFrame implements ActionListener,
 				SpringLayout.NORTH, contentPane);
 		layout.putConstraint(SpringLayout.SOUTH, lblExponent, -3,
 				SpringLayout.NORTH, lblIter);
-		layout.putConstraint(SpringLayout.WEST, lblExponent, 5,
+		layout.putConstraint(SpringLayout.WEST, lblExponent, 10,
 				SpringLayout.EAST, switchFractalMode);
 		layout.putConstraint(SpringLayout.EAST, lblExponent, -60,
 				SpringLayout.WEST, btnZoomIn);
@@ -348,7 +349,7 @@ public class MainWindow extends javax.swing.JFrame implements ActionListener,
 				SpringLayout.NORTH, contentPane);
 		layout.putConstraint(SpringLayout.SOUTH, comboFractalType, -3,
 				SpringLayout.NORTH, lblIter);
-		layout.putConstraint(SpringLayout.WEST, comboFractalType, 5,
+		layout.putConstraint(SpringLayout.WEST, comboFractalType, -10,
 				SpringLayout.EAST, lblExponent);
 		layout.putConstraint(SpringLayout.EAST, comboFractalType, -10,
 				SpringLayout.WEST, btnZoomIn);
@@ -559,6 +560,26 @@ public class MainWindow extends javax.swing.JFrame implements ActionListener,
 			lblIter.setText(iterTxt
 					+ String.valueOf(getSliderValue(sliderIterationLevel
 							.getValue())));
+			RedrawView();
+		}
+	}
+
+	@Override
+	public void OnDragView(int x, int y) {
+		if (fractalCalc != null) {
+			fractalCalc.modPosx((float)x * -0.001f);
+			fractalCalc.modPosy((float)y * -0.001f);
+			RedrawView();
+		}
+	}
+
+	@Override
+	public void OnWheelEvent(int wheelRotation) {
+		if (fractalCalc != null) {
+			if ( wheelRotation > 0 )
+				fractalCalc.setZoom(fractalCalc.getZoom() * zoomFactor);
+			else
+				fractalCalc.setZoom(fractalCalc.getZoom() / zoomFactor);
 			RedrawView();
 		}
 	}
