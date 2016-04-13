@@ -7,7 +7,7 @@ typedef struct Complex {
 	 RealNumber i;   
  } Complex; 
 
- Complex cMul(Complex c1, Complex c2)
+ inline Complex cMul(Complex c1, Complex c2)
  {
  	Complex ret;
  	ret.r = c1.r * c2.r - c1.i * c2.i;
@@ -15,7 +15,7 @@ typedef struct Complex {
  	return ret;
  }
  
- RealNumber cLength(Complex c)
+ inline RealNumber cLength(Complex c)
  {
  	return sqrt(c.r*c.r+c.i*c.i);
  }
@@ -30,7 +30,7 @@ typedef struct Complex {
  	return ret;
  }
  
- Complex cDiv(Complex c1, Complex c2)
+ inline Complex cDiv(Complex c1, Complex c2)
  {
 	Complex top;
 	top.r = c1.r;
