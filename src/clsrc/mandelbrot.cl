@@ -47,6 +47,9 @@ typedef struct Complex {
  //realParams[0,1,2,3] = 0: pan x, 1: pan y, 2: zoom factor, 3: aspectRatio
 __kernel void mandelbrot(__constant const int *intParams, __constant const RealNumber *realParams, __global __write_only char *output) 
 { 
+	if (get_global_id(0) >= intParams[1] || get_global_id(1) >= intParams[2])
+		return; 
+		
 	Complex C; 
 	Complex sum; 
 	Complex previous; 
@@ -93,6 +96,9 @@ __kernel void mandelbrot(__constant const int *intParams, __constant const RealN
  //realParams[0,1,2,3] = 0: pan x, 1: pan y, 2: zoom factor, 3: aspectRatio, 4-5: julia parameters
 __kernel void julia(__constant const int *intParams, __constant const RealNumber *realParams, __global __write_only char *output) 
 { 
+	if (get_global_id(0) >= intParams[1] || get_global_id(1) >= intParams[2])
+		return; 
+		
 	Complex C; 
 	Complex sum; 
 	Complex previous; 
@@ -140,6 +146,9 @@ __kernel void julia(__constant const int *intParams, __constant const RealNumber
  //realParams[0,1,2,3] = 0: pan x, 1: pan y, 2: zoom factor, 3: aspectRatio
 __kernel void mandelbrotN(__constant const int *intParams, __constant const RealNumber *realParams, __global __write_only char *output) 
 { 
+	if (get_global_id(0) >= intParams[1] || get_global_id(1) >= intParams[2])
+		return; 
+		
 	Complex C; 
 	Complex sum; 
 	Complex previous; 
@@ -184,6 +193,9 @@ __kernel void mandelbrotN(__constant const int *intParams, __constant const Real
  //realParams[0,1,2,3] = 0: pan x, 1: pan y, 2: zoom factor, 3: aspectRatio, 4-5: julia parameters
 __kernel void juliaN(__constant const int *intParams, __constant const RealNumber *realParams, __global __write_only char *output) 
 { 
+	if (get_global_id(0) >= intParams[1] || get_global_id(1) >= intParams[2])
+		return; 
+		
 	Complex C; 
 	Complex sum; 
 	Complex previous; 
