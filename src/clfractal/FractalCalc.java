@@ -10,6 +10,7 @@ import org.jocl.cl_mem;
 
 import clframework.common.CLContext;
 import clframework.common.CLKernel;
+import clframework.common.CLUtils;
 
 public class FractalCalc {
 
@@ -75,6 +76,22 @@ public class FractalCalc {
 			try {
 				context = CLContext.createContext(platformid, deviceid);
 
+				try {
+					int workDimensions = (int) CLUtils.GetCLLongPropertyNoCast(
+							platformid, deviceid,
+							CL_DEVICE_MAX_WORK_ITEM_DIMENSIONS);
+					long[] sizes = CLUtils.GetCLLongsProperty(platformid,
+							deviceid, CL_DEVICE_MAX_WORK_ITEM_SIZES,
+							workDimensions);
+					long workgroupsize = CLUtils
+					.GetCLLongProperty(platformid, deviceid,
+							CL_DEVICE_MAX_WORK_GROUP_SIZE);
+
+					useExplicitLocalWorkSize = (workDimensions >= 2 && sizes.length >= 2 && sizes[0] >= 8
+							&& sizes[1] >= 8 && workgroupsize >= 64);
+				} catch (Exception e) {
+					useExplicitLocalWorkSize = false;
+				}
 			} catch (Exception e) {
 				if (context != null) {
 					context.delete();
