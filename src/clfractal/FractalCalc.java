@@ -37,7 +37,8 @@ public class FractalCalc {
 	double srcArrayB_D[] = new double[6];
 	long global_work_size[] = new long[] { 0, 0 };
 	long local_work_size[] = new long[] { 8, 8 };
-
+	boolean useExplicitLocalWorkSize = true;
+	
 	private int platformid, deviceid;
 
 	public FractalCalc(ImagePanel img, int platformid, int deviceid)
@@ -140,15 +141,23 @@ public class FractalCalc {
 					Pointer.to(memObjects[i]));
 		}
 
-		global_work_size[0] = width
-				+ ((width % local_work_size[0]) != 0 ? (local_work_size[0] - (width % local_work_size[0])) : 0);
-		global_work_size[1] = height
-				+ ((height % local_work_size[1]) != 0 ? (local_work_size[1] - (height % local_work_size[1])) : 0);
-
+		if (useExplicitLocalWorkSize)
+		{
+			global_work_size[0] = width
+					+ ((width % local_work_size[0]) != 0 ? (local_work_size[0] - (width % local_work_size[0])) : 0);
+			global_work_size[1] = height
+					+ ((height % local_work_size[1]) != 0 ? (local_work_size[1] - (height % local_work_size[1])) : 0);
+		}
+		else
+		{
+			global_work_size[0] = width;
+			global_work_size[1] = height;
+		}
+		
 		long time2 = System.nanoTime();
 
 		clEnqueueNDRangeKernel(context.getCommandQueue(), kernel.getKernel(),
-				2, null, global_work_size, local_work_size, 0, null, null);
+				2, null, global_work_size, useExplicitLocalWorkSize ? local_work_size : null, 0, null, null);
 
 		clEnqueueReadBuffer(context.getCommandQueue(), memObjects[2], CL_TRUE,
 				0, width * height * Sizeof.cl_char, dst, 0, null, null);
