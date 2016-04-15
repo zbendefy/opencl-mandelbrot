@@ -47,8 +47,8 @@ public class MainWindow extends javax.swing.JFrame implements ActionListener,
 	private static final String iterTxt = "Iterations: ";
 	private static final String version = "1.3beta";
 
-	private final float moveFactor = 0.2f;
-	private final float zoomFactor = 1.4f;
+	private final double moveFactor = 0.2;
+	private final double zoomFactor = 1.4;
 
 	private FractalCalc fractalCalc;
 
