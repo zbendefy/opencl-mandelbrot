@@ -498,8 +498,8 @@ public class MainWindow extends javax.swing.JFrame implements ActionListener,
 		}
 		if (e.getSource().equals(comboFractalType)) {
 			if (fractalCalc != null) {
-				fractalCalc.setExponent((int) comboFractalType
-						.getSelectedItem());
+				fractalCalc.setExponent((int) Integer.parseInt(comboFractalType
+						.getSelectedItem().toString()));
 				RedrawView();
 			}
 		}
