@@ -9,6 +9,7 @@ import org.jocl.Sizeof;
 import org.jocl.cl_mem;
 
 import clframework.common.CLContext;
+import clframework.common.CLDevice;
 import clframework.common.CLKernel;
 import clframework.common.CLUtils;
 
@@ -28,6 +29,7 @@ public class FractalCalc {
 	private boolean GLSharing = false;
 	private long lastExecTime;
 	private long lastTotalTime;
+	private int width = 1, height = 1;
 
 	private CLContext context = null;
 	private CLKernel kernel = null;
@@ -39,11 +41,10 @@ public class FractalCalc {
 	long global_work_size[] = new long[] { 0, 0 };
 	long local_work_size[] = new long[] { 8, 8 };
 	boolean useExplicitLocalWorkSize = true;
-	
+
 	private int platformid, deviceid;
 
-	public FractalCalc(ImagePanel img, int platformid, int deviceid)
-			throws Exception {
+	public FractalCalc(ImagePanel img, int platformid, int deviceid) throws Exception {
 		this.platformid = platformid;
 		this.deviceid = deviceid;
 		highPrecision = false;
@@ -52,8 +53,7 @@ public class FractalCalc {
 	}
 
 	public double[] getState() {
-		return new double[] { posx, posy, zoom, savedposx, savedposy,
-				savedzoom, juliaposx, juliaposy,
+		return new double[] { posx, posy, zoom, savedposx, savedposy, savedzoom, juliaposx, juliaposy,
 				fractalMode == FractalModes.JULIA ? 1.0 : -1.0, exponent };
 	}
 
@@ -66,26 +66,27 @@ public class FractalCalc {
 		savedzoom = state[5];
 		juliaposx = state[6];
 		juliaposy = state[7];
-		fractalMode = state[8] > 0 ? FractalModes.JULIA
-				: FractalModes.MANDELBROT;
+		fractalMode = state[8] > 0 ? FractalModes.JULIA : FractalModes.MANDELBROT;
 		exponent = (int) state[9];
 	}
 
-	public void updateImage(int width, int height, byte[] result) throws Exception {
+	public void onResize(int w, int h) {
+		width = w;
+		height = h;
+		memObjects[2] = null;
+	}
+
+	public void updateImage(byte[] result) throws Exception {
 		if (context == null) {
 			try {
-				context = CLContext.createContext(platformid, deviceid);
+                context = CLContext.createContext(platformid, deviceid);
 
 				try {
-					int workDimensions = (int) CLUtils.GetCLLongPropertyNoCast(
-							platformid, deviceid,
+					int workDimensions = (int) CLUtils.GetCLLongPropertyNoCast(platformid, deviceid,
 							CL_DEVICE_MAX_WORK_ITEM_DIMENSIONS);
-					long[] sizes = CLUtils.GetCLLongsProperty(platformid,
-							deviceid, CL_DEVICE_MAX_WORK_ITEM_SIZES,
+					long[] sizes = CLUtils.GetCLLongsProperty(platformid, deviceid, CL_DEVICE_MAX_WORK_ITEM_SIZES,
 							workDimensions);
-					long workgroupsize = CLUtils
-					.GetCLLongProperty(platformid, deviceid,
-							CL_DEVICE_MAX_WORK_GROUP_SIZE);
+					long workgroupsize = CLUtils.GetCLLongProperty(platformid, deviceid, CL_DEVICE_MAX_WORK_GROUP_SIZE);
 
 					useExplicitLocalWorkSize = (workDimensions >= 2 && sizes.length >= 2 && sizes[0] >= 8
 							&& sizes[1] >= 8 && workgroupsize >= 64);
@@ -140,44 +141,38 @@ public class FractalCalc {
 		srcArrayB_D[5] = juliaposy;
 
 		Pointer srcA = Pointer.to(srcArrayA);
-		Pointer srcB = highPrecision ? Pointer.to(srcArrayB_D) : Pointer
-				.to(srcArrayB);
+		Pointer srcB = highPrecision ? Pointer.to(srcArrayB_D) : Pointer.to(srcArrayB);
 		Pointer dst = Pointer.to(result);
 
-		memObjects[0] = clCreateBuffer(context.getContext(), CL_MEM_READ_ONLY
-				| CL_MEM_COPY_HOST_PTR, Sizeof.cl_int * srcArrayA.length, srcA,
-				null);
-		memObjects[1] = clCreateBuffer(context.getContext(), CL_MEM_READ_ONLY
-				| CL_MEM_COPY_HOST_PTR, (highPrecision ? Sizeof.cl_double
-				: Sizeof.cl_float) * srcArrayB.length, srcB, null);
-		memObjects[2] = clCreateBuffer(context.getContext(), CL_MEM_WRITE_ONLY,
-				Sizeof.cl_char * n, null, null);
+		memObjects[0] = clCreateBuffer(context.getContext(), CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR,
+				Sizeof.cl_int * srcArrayA.length, srcA, null);
+		memObjects[1] = clCreateBuffer(context.getContext(), CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR,
+				(highPrecision ? Sizeof.cl_double : Sizeof.cl_float) * srcArrayB.length, srcB, null);
 
-		for (int i = 0; i < memObjects.length; i++) {
-			clSetKernelArg(kernel.getKernel(), i, Sizeof.cl_mem,
-					Pointer.to(memObjects[i]));
+		if (memObjects[2] == null) {
+			memObjects[2] = clCreateBuffer(context.getContext(), CL_MEM_WRITE_ONLY, Sizeof.cl_char * n, null, null);
 		}
 
-		if (useExplicitLocalWorkSize)
-		{
+		for (int i = 0; i < memObjects.length; i++) {
+			clSetKernelArg(kernel.getKernel(), i, Sizeof.cl_mem, Pointer.to(memObjects[i]));
+		}
+
+		if (useExplicitLocalWorkSize) {
 			global_work_size[0] = width
 					+ ((width % local_work_size[0]) != 0 ? (local_work_size[0] - (width % local_work_size[0])) : 0);
 			global_work_size[1] = height
 					+ ((height % local_work_size[1]) != 0 ? (local_work_size[1] - (height % local_work_size[1])) : 0);
-		}
-		else
-		{
+		} else {
 			global_work_size[0] = width;
 			global_work_size[1] = height;
 		}
-		
+
 		long time2 = System.nanoTime();
+		clEnqueueNDRangeKernel(context.getCommandQueue(), kernel.getKernel(), 2, null, global_work_size,
+				useExplicitLocalWorkSize ? local_work_size : null, 0, null, null);
 
-		clEnqueueNDRangeKernel(context.getCommandQueue(), kernel.getKernel(),
-				2, null, global_work_size, useExplicitLocalWorkSize ? local_work_size : null, 0, null, null);
-
-		clEnqueueReadBuffer(context.getCommandQueue(), memObjects[2], CL_TRUE,
-				0, width * height * Sizeof.cl_char, dst, 0, null, null);
+		clEnqueueReadBuffer(context.getCommandQueue(), memObjects[2], CL_TRUE, 0, width * height * Sizeof.cl_char, dst,
+				0, null, null);
 
 		long time3 = System.nanoTime();
 

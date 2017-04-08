@@ -24,6 +24,7 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 import clfractal.FractalCalc.FractalModes;
+import clframework.common.CLDevice;
 import clframework.common.CLUtils;
 
 public class MainWindow extends javax.swing.JFrame implements ActionListener,
@@ -372,6 +373,8 @@ public class MainWindow extends javax.swing.JFrame implements ActionListener,
 		mainFrame.setSize(780, 500);
 		mainFrame.addComponentListener(new ComponentListener() {
 			public void componentResized(ComponentEvent evt) {
+				if ( fractalCalc != null )
+					fractalCalc.onResize(imagePanel.getWidth(), imagePanel.getHeight());
 				RedrawView();
 			}
 
@@ -542,7 +545,7 @@ public class MainWindow extends javax.swing.JFrame implements ActionListener,
 		if (fractalCalc != null) {
 			try {
 				imagePanel.updateImageSize();
-				fractalCalc.updateImage(imagePanel.getWidth(), imagePanel.getHeight(), imagePanel.getImageByteArray());
+				fractalCalc.updateImage( imagePanel.getImageByteArray());
 				imagePanel.repaint();
 			} catch (Exception e) {
 				e.printStackTrace(System.err);
