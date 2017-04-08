@@ -46,10 +46,10 @@ public class MainWindow extends javax.swing.JFrame implements ActionListener,
 	private JCheckBox switchFractalMode, checkHighPrecision;
 
 	private static final String iterTxt = "Iterations: ";
-	private static final String version = "1.3beta";
+	private static final String version = "1.3";
 
-	private final float moveFactor = 0.2f;
-	private final float zoomFactor = 1.4f;
+	private final double moveFactor = 0.2;
+	private final double zoomFactor = 1.4;
 
 	private FractalCalc fractalCalc;
 
@@ -501,8 +501,8 @@ public class MainWindow extends javax.swing.JFrame implements ActionListener,
 		}
 		if (e.getSource().equals(comboFractalType)) {
 			if (fractalCalc != null) {
-				fractalCalc.setExponent((int) comboFractalType
-						.getSelectedItem());
+				fractalCalc.setExponent((int) Integer.parseInt(comboFractalType
+						.getSelectedItem().toString()));
 				RedrawView();
 			}
 		}
