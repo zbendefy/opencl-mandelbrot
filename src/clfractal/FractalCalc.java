@@ -91,7 +91,7 @@ public class FractalCalc {
 	}
 
 	public void onResize(int w, int h) {
-		if (width == w || height == h || w < 1 || h < 1)
+		if ((width == w && height == h) || w < 1 || h < 1)
 			return;
 
 		width = w;
