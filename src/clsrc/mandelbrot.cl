@@ -1,6 +1,9 @@
-%64bit_pragma%
-
-typedef %numberformat% RealNumber;
+#if defined( USE_HIGH_PRECISION )
+    #pragma OPENCL EXTENSION cl_khr_fp64 : enable
+    typedef double RealNumber;
+#else
+    typedef float RealNumber;
+#endif
 
 typedef struct Complex {   
 	 RealNumber r;   
@@ -29,19 +32,6 @@ typedef struct Complex {
  	}
  	return ret;
  }
- 
- inline Complex cDiv(Complex c1, Complex c2)
- {
-	Complex top;
-	top.r = c1.r;
-	top.i = -c1.i;
-	RealNumber bottom = cLength(c2);
-	top.r /= bottom;
-	top.i /= bottom;
-	return top;
-
- }
- 
   
  //intParams[0,1,2] = 0:iteration limit, 1: image width, 2: image height 
  //realParams[0,1,2,3] = 0: pan x, 1: pan y, 2: zoom factor, 3: aspectRatio

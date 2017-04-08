@@ -11,7 +11,6 @@ import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 
-import javax.print.attribute.standard.JobName;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -25,10 +24,8 @@ import javax.swing.event.ChangeListener;
 
 import clfractal.FractalCalc.FractalModes;
 import clframework.common.CLDevice;
-import clframework.common.CLUtils;
 
-public class MainWindow extends javax.swing.JFrame implements ActionListener,
-		ChangeListener, IMouseEvents {
+public class MainWindow extends javax.swing.JFrame implements ActionListener, ChangeListener, IMouseEvents {
 
 	private JFrame mainFrame;
 	private ImagePanel imagePanel;
@@ -40,13 +37,12 @@ public class MainWindow extends javax.swing.JFrame implements ActionListener,
 	private JComboBox<String> comboPlatformList;
 	private JComboBox<String> comboDeviceList;
 	private JComboBox<Integer> comboFractalType;
-	private JButton btnMoveLeft, btnMoveRight, btnMoveUp, btnMoveDn, btnZoomIn,
-			btnZoomOut;
+	private JButton btnMoveLeft, btnMoveRight, btnMoveUp, btnMoveDn, btnZoomIn, btnZoomOut;
 	private JSlider sliderIterationLevel;
 	private JCheckBox switchFractalMode, checkHighPrecision;
 
 	private static final String iterTxt = "Iterations: ";
-	private static final String version = "1.3";
+	private static final String version = "1.3c";
 
 	private final double moveFactor = 0.2;
 	private final double zoomFactor = 1.4;
@@ -55,12 +51,9 @@ public class MainWindow extends javax.swing.JFrame implements ActionListener,
 
 	private void updateInfobar() {
 		if (lblInfobar != null && fractalCalc != null) {
-			lblInfobar.setText("Pos: (" + fractalCalc.getPosx() + ", "
-					+ fractalCalc.getPosy() + ") | Zoom: "
-					+ fractalCalc.getZoom() + " | Screen: "
-					+ imagePanel.getWidth() + "x" + imagePanel.getHeight()
-					+ " | Execution time (ms): "
-					+ fractalCalc.getLastExecTime());
+			lblInfobar.setText("Pos: (" + fractalCalc.getPosx() + ", " + fractalCalc.getPosy() + ") | Zoom: "
+					+ fractalCalc.getZoom() + " | Screen: " + imagePanel.getWidth() + "x" + imagePanel.getHeight()
+					+ " | Execution time (ms): " + fractalCalc.getLastExecTime());
 		}
 	}
 
@@ -80,80 +73,57 @@ public class MainWindow extends javax.swing.JFrame implements ActionListener,
 		final int LabelWidth = 80;
 		final int comboDist = 450;
 
-		String[] pllist = CLUtils.GetCLPlatformNames();
+		String[] pllist = CLDevice.GetCLPlatformNames();
 		comboPlatformList = new JComboBox<String>(pllist);
 		comboPlatformList.addActionListener(this);
 		mainFrame.add(comboPlatformList);
-		layout.putConstraint(SpringLayout.NORTH, comboPlatformList, 10,
-				SpringLayout.NORTH, contentPane);
-		layout.putConstraint(SpringLayout.WEST, comboPlatformList, LabelWidth,
-				SpringLayout.WEST, contentPane);
-		layout.putConstraint(SpringLayout.EAST, comboPlatformList, -comboDist,
-				SpringLayout.EAST, contentPane);
+		layout.putConstraint(SpringLayout.NORTH, comboPlatformList, 10, SpringLayout.NORTH, contentPane);
+		layout.putConstraint(SpringLayout.WEST, comboPlatformList, LabelWidth, SpringLayout.WEST, contentPane);
+		layout.putConstraint(SpringLayout.EAST, comboPlatformList, -comboDist, SpringLayout.EAST, contentPane);
 
-		String[] dlist = CLUtils.GetCLDeviceNames(0);
+		String[] dlist = CLDevice.GetCLDeviceNames(0);
 		comboDeviceList = new JComboBox<String>(dlist);
 		comboDeviceList.addActionListener(this);
 		mainFrame.add(comboDeviceList);
-		layout.putConstraint(SpringLayout.NORTH, comboDeviceList, 10,
-				SpringLayout.SOUTH, comboPlatformList);
+		layout.putConstraint(SpringLayout.NORTH, comboDeviceList, 10, SpringLayout.SOUTH, comboPlatformList);
 		// layout.putConstraint(SpringLayout.SOUTH, devicelist, 80,
 		// SpringLayout.SOUTH, platformlist);
-		layout.putConstraint(SpringLayout.WEST, comboDeviceList, LabelWidth,
-				SpringLayout.WEST, contentPane);
-		layout.putConstraint(SpringLayout.EAST, comboDeviceList, -comboDist,
-				SpringLayout.EAST, contentPane);
+		layout.putConstraint(SpringLayout.WEST, comboDeviceList, LabelWidth, SpringLayout.WEST, contentPane);
+		layout.putConstraint(SpringLayout.EAST, comboDeviceList, -comboDist, SpringLayout.EAST, contentPane);
 
 		lblPlatform = new JLabel("Platforms:");
 		lblPlatform.setToolTipText("Platforms");
 		mainFrame.add(lblPlatform);
-		layout.putConstraint(SpringLayout.NORTH, lblPlatform, 3,
-				SpringLayout.NORTH, comboPlatformList);
-		layout.putConstraint(SpringLayout.WEST, lblPlatform, 5,
-				SpringLayout.WEST, contentPane);
-		layout.putConstraint(SpringLayout.EAST, lblPlatform, -5,
-				SpringLayout.WEST, comboPlatformList);
+		layout.putConstraint(SpringLayout.NORTH, lblPlatform, 3, SpringLayout.NORTH, comboPlatformList);
+		layout.putConstraint(SpringLayout.WEST, lblPlatform, 5, SpringLayout.WEST, contentPane);
+		layout.putConstraint(SpringLayout.EAST, lblPlatform, -5, SpringLayout.WEST, comboPlatformList);
 
 		lblDevice = new JLabel("Devices:");
 		lblDevice.setToolTipText("Devices");
 		mainFrame.add(lblDevice);
-		layout.putConstraint(SpringLayout.NORTH, lblDevice, 3,
-				SpringLayout.NORTH, comboDeviceList);
-		layout.putConstraint(SpringLayout.WEST, lblDevice, 5,
-				SpringLayout.WEST, contentPane);
-		layout.putConstraint(SpringLayout.EAST, lblDevice, -5,
-				SpringLayout.WEST, comboDeviceList);
+		layout.putConstraint(SpringLayout.NORTH, lblDevice, 3, SpringLayout.NORTH, comboDeviceList);
+		layout.putConstraint(SpringLayout.WEST, lblDevice, 5, SpringLayout.WEST, contentPane);
+		layout.putConstraint(SpringLayout.EAST, lblDevice, -5, SpringLayout.WEST, comboDeviceList);
 
 		imagePanel = new ImagePanel();
 		imagePanel.SetMouseListener(this);
 		mainFrame.add(imagePanel);
-		layout.putConstraint(SpringLayout.NORTH, imagePanel, 10,
-				SpringLayout.SOUTH, comboDeviceList);
-		layout.putConstraint(SpringLayout.WEST, imagePanel, 5,
-				SpringLayout.WEST, contentPane);
-		layout.putConstraint(SpringLayout.EAST, imagePanel, -5,
-				SpringLayout.EAST, contentPane);
-		layout.putConstraint(SpringLayout.SOUTH, imagePanel, -18,
-				SpringLayout.SOUTH, contentPane);
+		layout.putConstraint(SpringLayout.NORTH, imagePanel, 10, SpringLayout.SOUTH, comboDeviceList);
+		layout.putConstraint(SpringLayout.WEST, imagePanel, 5, SpringLayout.WEST, contentPane);
+		layout.putConstraint(SpringLayout.EAST, imagePanel, -5, SpringLayout.EAST, contentPane);
+		layout.putConstraint(SpringLayout.SOUTH, imagePanel, -18, SpringLayout.SOUTH, contentPane);
 		imagePanel.setFocusable(true);
 		imagePanel.addMouseListener(new MouseListener() {
-
 			@Override
 			public void mouseReleased(MouseEvent arg0) {
-				// TODO Auto-generated method stub
-
 			}
 
 			@Override
 			public void mousePressed(MouseEvent arg0) {
-				// TODO Auto-generated method stub
-
 			}
 
 			@Override
 			public void mouseExited(MouseEvent arg0) {
-				// TODO Auto-generated method stub
-
 			}
 
 			@Override
@@ -163,8 +133,6 @@ public class MainWindow extends javax.swing.JFrame implements ActionListener,
 
 			@Override
 			public void mouseClicked(MouseEvent arg0) {
-				// TODO Auto-generated method stub
-
 			}
 		});
 
@@ -178,14 +146,10 @@ public class MainWindow extends javax.swing.JFrame implements ActionListener,
 			}
 		});
 		mainFrame.add(btnMoveLeft);
-		layout.putConstraint(SpringLayout.NORTH, btnMoveLeft, 30,
-				SpringLayout.NORTH, contentPane);
-		layout.putConstraint(SpringLayout.SOUTH, btnMoveLeft, 50,
-				SpringLayout.NORTH, contentPane);
-		layout.putConstraint(SpringLayout.WEST, btnMoveLeft, -100,
-				SpringLayout.EAST, contentPane);
-		layout.putConstraint(SpringLayout.EAST, btnMoveLeft, -55,
-				SpringLayout.EAST, contentPane);
+		layout.putConstraint(SpringLayout.NORTH, btnMoveLeft, 30, SpringLayout.NORTH, contentPane);
+		layout.putConstraint(SpringLayout.SOUTH, btnMoveLeft, 50, SpringLayout.NORTH, contentPane);
+		layout.putConstraint(SpringLayout.WEST, btnMoveLeft, -100, SpringLayout.EAST, contentPane);
+		layout.putConstraint(SpringLayout.EAST, btnMoveLeft, -55, SpringLayout.EAST, contentPane);
 
 		btnMoveRight = new JButton(">");
 		btnMoveRight.addActionListener(new ActionListener() {
@@ -197,14 +161,10 @@ public class MainWindow extends javax.swing.JFrame implements ActionListener,
 			}
 		});
 		mainFrame.add(btnMoveRight);
-		layout.putConstraint(SpringLayout.NORTH, btnMoveRight, 30,
-				SpringLayout.NORTH, contentPane);
-		layout.putConstraint(SpringLayout.SOUTH, btnMoveRight, 50,
-				SpringLayout.NORTH, contentPane);
-		layout.putConstraint(SpringLayout.WEST, btnMoveRight, -50,
-				SpringLayout.EAST, contentPane);
-		layout.putConstraint(SpringLayout.EAST, btnMoveRight, -5,
-				SpringLayout.EAST, contentPane);
+		layout.putConstraint(SpringLayout.NORTH, btnMoveRight, 30, SpringLayout.NORTH, contentPane);
+		layout.putConstraint(SpringLayout.SOUTH, btnMoveRight, 50, SpringLayout.NORTH, contentPane);
+		layout.putConstraint(SpringLayout.WEST, btnMoveRight, -50, SpringLayout.EAST, contentPane);
+		layout.putConstraint(SpringLayout.EAST, btnMoveRight, -5, SpringLayout.EAST, contentPane);
 
 		btnMoveUp = new JButton("^");
 		btnMoveUp.addActionListener(new ActionListener() {
@@ -216,14 +176,10 @@ public class MainWindow extends javax.swing.JFrame implements ActionListener,
 			}
 		});
 		mainFrame.add(btnMoveUp);
-		layout.putConstraint(SpringLayout.NORTH, btnMoveUp, 5,
-				SpringLayout.NORTH, contentPane);
-		layout.putConstraint(SpringLayout.SOUTH, btnMoveUp, 25,
-				SpringLayout.NORTH, contentPane);
-		layout.putConstraint(SpringLayout.WEST, btnMoveUp, -75,
-				SpringLayout.EAST, contentPane);
-		layout.putConstraint(SpringLayout.EAST, btnMoveUp, -30,
-				SpringLayout.EAST, contentPane);
+		layout.putConstraint(SpringLayout.NORTH, btnMoveUp, 5, SpringLayout.NORTH, contentPane);
+		layout.putConstraint(SpringLayout.SOUTH, btnMoveUp, 25, SpringLayout.NORTH, contentPane);
+		layout.putConstraint(SpringLayout.WEST, btnMoveUp, -75, SpringLayout.EAST, contentPane);
+		layout.putConstraint(SpringLayout.EAST, btnMoveUp, -30, SpringLayout.EAST, contentPane);
 
 		btnMoveDn = new JButton("v");
 		btnMoveDn.addActionListener(new ActionListener() {
@@ -235,14 +191,10 @@ public class MainWindow extends javax.swing.JFrame implements ActionListener,
 			}
 		});
 		mainFrame.add(btnMoveDn);
-		layout.putConstraint(SpringLayout.NORTH, btnMoveDn, 55,
-				SpringLayout.NORTH, contentPane);
-		layout.putConstraint(SpringLayout.SOUTH, btnMoveDn, 75,
-				SpringLayout.NORTH, contentPane);
-		layout.putConstraint(SpringLayout.WEST, btnMoveDn, -75,
-				SpringLayout.EAST, contentPane);
-		layout.putConstraint(SpringLayout.EAST, btnMoveDn, -30,
-				SpringLayout.EAST, contentPane);
+		layout.putConstraint(SpringLayout.NORTH, btnMoveDn, 55, SpringLayout.NORTH, contentPane);
+		layout.putConstraint(SpringLayout.SOUTH, btnMoveDn, 75, SpringLayout.NORTH, contentPane);
+		layout.putConstraint(SpringLayout.WEST, btnMoveDn, -75, SpringLayout.EAST, contentPane);
+		layout.putConstraint(SpringLayout.EAST, btnMoveDn, -30, SpringLayout.EAST, contentPane);
 
 		btnZoomIn = new JButton("+");
 		btnZoomIn.addActionListener(new ActionListener() {
@@ -254,14 +206,10 @@ public class MainWindow extends javax.swing.JFrame implements ActionListener,
 			}
 		});
 		mainFrame.add(btnZoomIn);
-		layout.putConstraint(SpringLayout.NORTH, btnZoomIn, 5,
-				SpringLayout.NORTH, contentPane);
-		layout.putConstraint(SpringLayout.SOUTH, btnZoomIn, 25,
-				SpringLayout.NORTH, contentPane);
-		layout.putConstraint(SpringLayout.WEST, btnZoomIn, -130,
-				SpringLayout.EAST, contentPane);
-		layout.putConstraint(SpringLayout.EAST, btnZoomIn, -5,
-				SpringLayout.WEST, btnMoveUp);
+		layout.putConstraint(SpringLayout.NORTH, btnZoomIn, 5, SpringLayout.NORTH, contentPane);
+		layout.putConstraint(SpringLayout.SOUTH, btnZoomIn, 25, SpringLayout.NORTH, contentPane);
+		layout.putConstraint(SpringLayout.WEST, btnZoomIn, -130, SpringLayout.EAST, contentPane);
+		layout.putConstraint(SpringLayout.EAST, btnZoomIn, -5, SpringLayout.WEST, btnMoveUp);
 
 		btnZoomOut = new JButton("-");
 		btnZoomOut.addActionListener(new ActionListener() {
@@ -273,107 +221,71 @@ public class MainWindow extends javax.swing.JFrame implements ActionListener,
 			}
 		});
 		mainFrame.add(btnZoomOut);
-		layout.putConstraint(SpringLayout.NORTH, btnZoomOut, 55,
-				SpringLayout.NORTH, contentPane);
-		layout.putConstraint(SpringLayout.SOUTH, btnZoomOut, 75,
-				SpringLayout.NORTH, contentPane);
-		layout.putConstraint(SpringLayout.WEST, btnZoomOut, -130,
-				SpringLayout.EAST, contentPane);
-		layout.putConstraint(SpringLayout.EAST, btnZoomOut, -5,
-				SpringLayout.WEST, btnMoveUp);
+		layout.putConstraint(SpringLayout.NORTH, btnZoomOut, 55, SpringLayout.NORTH, contentPane);
+		layout.putConstraint(SpringLayout.SOUTH, btnZoomOut, 75, SpringLayout.NORTH, contentPane);
+		layout.putConstraint(SpringLayout.WEST, btnZoomOut, -130, SpringLayout.EAST, contentPane);
+		layout.putConstraint(SpringLayout.EAST, btnZoomOut, -5, SpringLayout.WEST, btnMoveUp);
 
 		sliderIterationLevel = new JSlider(0, 1, 60, 7);
 		mainFrame.add(sliderIterationLevel);
 		sliderIterationLevel.addChangeListener((ChangeListener) this);
-		layout.putConstraint(SpringLayout.NORTH, sliderIterationLevel, 55,
-				SpringLayout.NORTH, contentPane);
-		layout.putConstraint(SpringLayout.SOUTH, sliderIterationLevel, 75,
-				SpringLayout.NORTH, contentPane);
-		layout.putConstraint(SpringLayout.WEST, sliderIterationLevel,
-				-comboDist + 5, SpringLayout.EAST, contentPane);
-		layout.putConstraint(SpringLayout.EAST, sliderIterationLevel, -10,
-				SpringLayout.WEST, btnZoomIn);
+		layout.putConstraint(SpringLayout.NORTH, sliderIterationLevel, 55, SpringLayout.NORTH, contentPane);
+		layout.putConstraint(SpringLayout.SOUTH, sliderIterationLevel, 75, SpringLayout.NORTH, contentPane);
+		layout.putConstraint(SpringLayout.WEST, sliderIterationLevel, -comboDist + 5, SpringLayout.EAST, contentPane);
+		layout.putConstraint(SpringLayout.EAST, sliderIterationLevel, -10, SpringLayout.WEST, btnZoomIn);
 
-		lblIter = new JLabel(
-				iterTxt
-						+ String.valueOf(getSliderValue(sliderIterationLevel
-								.getValue())));
+		lblIter = new JLabel(iterTxt + String.valueOf(getSliderValue(sliderIterationLevel.getValue())));
 		mainFrame.add(lblIter);
-		layout.putConstraint(SpringLayout.NORTH, lblIter, -20,
-				SpringLayout.NORTH, sliderIterationLevel);
-		layout.putConstraint(SpringLayout.SOUTH, lblIter, -2,
-				SpringLayout.NORTH, sliderIterationLevel);
-		layout.putConstraint(SpringLayout.WEST, lblIter, 5, SpringLayout.WEST,
-				sliderIterationLevel);
-		layout.putConstraint(SpringLayout.EAST, lblIter, 0, SpringLayout.EAST,
-				sliderIterationLevel);
+		layout.putConstraint(SpringLayout.NORTH, lblIter, -20, SpringLayout.NORTH, sliderIterationLevel);
+		layout.putConstraint(SpringLayout.SOUTH, lblIter, -2, SpringLayout.NORTH, sliderIterationLevel);
+		layout.putConstraint(SpringLayout.WEST, lblIter, 5, SpringLayout.WEST, sliderIterationLevel);
+		layout.putConstraint(SpringLayout.EAST, lblIter, 0, SpringLayout.EAST, sliderIterationLevel);
 
 		checkHighPrecision = new JCheckBox("64-bit");
 		checkHighPrecision.addActionListener(this);
 		mainFrame.add(checkHighPrecision);
-		layout.putConstraint(SpringLayout.NORTH, checkHighPrecision, 5,
-				SpringLayout.NORTH, contentPane);
-		layout.putConstraint(SpringLayout.SOUTH, checkHighPrecision, -3,
-				SpringLayout.NORTH, lblIter);
-		layout.putConstraint(SpringLayout.WEST, checkHighPrecision, 0,
-				SpringLayout.WEST, sliderIterationLevel);
-		layout.putConstraint(SpringLayout.EAST, checkHighPrecision, 75,
-				SpringLayout.WEST, sliderIterationLevel);
+		layout.putConstraint(SpringLayout.NORTH, checkHighPrecision, 5, SpringLayout.NORTH, contentPane);
+		layout.putConstraint(SpringLayout.SOUTH, checkHighPrecision, -3, SpringLayout.NORTH, lblIter);
+		layout.putConstraint(SpringLayout.WEST, checkHighPrecision, 0, SpringLayout.WEST, sliderIterationLevel);
+		layout.putConstraint(SpringLayout.EAST, checkHighPrecision, 75, SpringLayout.WEST, sliderIterationLevel);
 
 		switchFractalMode = new JCheckBox("Julia mode");
 		switchFractalMode.addActionListener(this);
 		mainFrame.add(switchFractalMode);
-		layout.putConstraint(SpringLayout.NORTH, switchFractalMode, 5,
-				SpringLayout.NORTH, contentPane);
-		layout.putConstraint(SpringLayout.SOUTH, switchFractalMode, -3,
-				SpringLayout.NORTH, lblIter);
-		layout.putConstraint(SpringLayout.WEST, switchFractalMode, 5,
-				SpringLayout.EAST, checkHighPrecision);
-		layout.putConstraint(SpringLayout.EAST, switchFractalMode, 100,
-				SpringLayout.EAST, checkHighPrecision);
+		layout.putConstraint(SpringLayout.NORTH, switchFractalMode, 5, SpringLayout.NORTH, contentPane);
+		layout.putConstraint(SpringLayout.SOUTH, switchFractalMode, -3, SpringLayout.NORTH, lblIter);
+		layout.putConstraint(SpringLayout.WEST, switchFractalMode, 5, SpringLayout.EAST, checkHighPrecision);
+		layout.putConstraint(SpringLayout.EAST, switchFractalMode, 100, SpringLayout.EAST, checkHighPrecision);
 
 		lblExponent = new JLabel("Exponent:");
 		mainFrame.add(lblExponent);
-		layout.putConstraint(SpringLayout.NORTH, lblExponent, 5,
-				SpringLayout.NORTH, contentPane);
-		layout.putConstraint(SpringLayout.SOUTH, lblExponent, -3,
-				SpringLayout.NORTH, lblIter);
-		layout.putConstraint(SpringLayout.WEST, lblExponent, 10,
-				SpringLayout.EAST, switchFractalMode);
-		layout.putConstraint(SpringLayout.EAST, lblExponent, -60,
-				SpringLayout.WEST, btnZoomIn);
+		layout.putConstraint(SpringLayout.NORTH, lblExponent, 5, SpringLayout.NORTH, contentPane);
+		layout.putConstraint(SpringLayout.SOUTH, lblExponent, -3, SpringLayout.NORTH, lblIter);
+		layout.putConstraint(SpringLayout.WEST, lblExponent, 10, SpringLayout.EAST, switchFractalMode);
+		layout.putConstraint(SpringLayout.EAST, lblExponent, -60, SpringLayout.WEST, btnZoomIn);
 
 		comboFractalType = new JComboBox<Integer>();
 		comboFractalType.addActionListener(this);
 		mainFrame.add(comboFractalType);
-		layout.putConstraint(SpringLayout.NORTH, comboFractalType, 5,
-				SpringLayout.NORTH, contentPane);
-		layout.putConstraint(SpringLayout.SOUTH, comboFractalType, -3,
-				SpringLayout.NORTH, lblIter);
-		layout.putConstraint(SpringLayout.WEST, comboFractalType, -10,
-				SpringLayout.EAST, lblExponent);
-		layout.putConstraint(SpringLayout.EAST, comboFractalType, -10,
-				SpringLayout.WEST, btnZoomIn);
+		layout.putConstraint(SpringLayout.NORTH, comboFractalType, 5, SpringLayout.NORTH, contentPane);
+		layout.putConstraint(SpringLayout.SOUTH, comboFractalType, -3, SpringLayout.NORTH, lblIter);
+		layout.putConstraint(SpringLayout.WEST, comboFractalType, -10, SpringLayout.EAST, lblExponent);
+		layout.putConstraint(SpringLayout.EAST, comboFractalType, -10, SpringLayout.WEST, btnZoomIn);
 		populateFractalModesList();
-		// comboFractalType.setVisible(false);
 
 		lblInfobar = new JLabel("Loading...");
 		mainFrame.add(lblInfobar);
-		layout.putConstraint(SpringLayout.NORTH, lblInfobar, -17,
-				SpringLayout.SOUTH, contentPane);
-		layout.putConstraint(SpringLayout.SOUTH, lblInfobar, 0,
-				SpringLayout.SOUTH, contentPane);
-		layout.putConstraint(SpringLayout.WEST, lblInfobar, 5,
-				SpringLayout.WEST, contentPane);
-		layout.putConstraint(SpringLayout.EAST, lblInfobar, -5,
-				SpringLayout.EAST, contentPane);
+		layout.putConstraint(SpringLayout.NORTH, lblInfobar, -17, SpringLayout.SOUTH, contentPane);
+		layout.putConstraint(SpringLayout.SOUTH, lblInfobar, 0, SpringLayout.SOUTH, contentPane);
+		layout.putConstraint(SpringLayout.WEST, lblInfobar, 5, SpringLayout.WEST, contentPane);
+		layout.putConstraint(SpringLayout.EAST, lblInfobar, -5, SpringLayout.EAST, contentPane);
 
 		mainFrame.pack();
 		mainFrame.setVisible(true);
 		mainFrame.setSize(780, 500);
 		mainFrame.addComponentListener(new ComponentListener() {
 			public void componentResized(ComponentEvent evt) {
-				if ( fractalCalc != null )
+				if (fractalCalc != null)
 					fractalCalc.onResize(imagePanel.getWidth(), imagePanel.getHeight());
 				RedrawView();
 			}
@@ -395,14 +307,10 @@ public class MainWindow extends javax.swing.JFrame implements ActionListener,
 
 			@Override
 			public void keyTyped(KeyEvent e) {
-				// TODO Auto-generated method stub
-
 			}
 
 			@Override
 			public void keyReleased(KeyEvent e) {
-				// TODO Auto-generated method stub
-
 			}
 
 			@Override
@@ -420,12 +328,10 @@ public class MainWindow extends javax.swing.JFrame implements ActionListener,
 					} else if (e.getKeyCode() == KeyEvent.VK_DOWN) {
 						fractalCalc.modPosy(moveFactor * 0.1f);
 						RedrawView();
-					} else if (e.getKeyCode() == KeyEvent.VK_ADD
-							|| e.getKeyCode() == KeyEvent.VK_PAGE_DOWN) {
+					} else if (e.getKeyCode() == KeyEvent.VK_ADD || e.getKeyCode() == KeyEvent.VK_PAGE_DOWN) {
 						fractalCalc.setZoom(fractalCalc.getZoom() / zoomFactor);
 						RedrawView();
-					} else if (e.getKeyCode() == KeyEvent.VK_SUBTRACT
-							|| e.getKeyCode() == KeyEvent.VK_PAGE_UP) {
+					} else if (e.getKeyCode() == KeyEvent.VK_SUBTRACT || e.getKeyCode() == KeyEvent.VK_PAGE_UP) {
 						fractalCalc.setZoom(fractalCalc.getZoom() * zoomFactor);
 						RedrawView();
 					}
@@ -440,7 +346,16 @@ public class MainWindow extends javax.swing.JFrame implements ActionListener,
 	}
 
 	private void recreateCalculator(int pid, int did) {
-		if (!CLUtils.isValidDevice(pid, did)) {
+		if (fractalCalc != null) {
+			if (fractalCalc.getDevice().getPlatformid() == pid && fractalCalc.getDevice().getDeviceid() == did) {
+				return;
+			}
+		}
+
+		CLDevice device = null;
+		try {
+			device = new CLDevice(pid, did);
+		} catch (Exception e) {
 			lblInfobar.setText("No installed OpenCL devices found!");
 			return;
 		}
@@ -448,26 +363,22 @@ public class MainWindow extends javax.swing.JFrame implements ActionListener,
 		double[] state = null;
 
 		if (fractalCalc != null) {
-			if (fractalCalc.getPlatformid() == pid
-					&& fractalCalc.getDeviceid() == did) {
-				return;
-			}
-
 			state = fractalCalc.getState();
 			fractalCalc.deleteResources();
 			fractalCalc = null;
 		}
 
 		checkHighPrecision.setSelected(false);
-		checkHWSupport(pid, did);
 
 		try {
-			fractalCalc = new FractalCalc(imagePanel, pid, did);
+			fractalCalc = new FractalCalc(imagePanel, device);
+			fractalCalc.onResize(imagePanel.getWidth(), imagePanel.getHeight());
+			checkHWSupport();
+
 			if (state != null) {
 				fractalCalc.restoreState(state);
 			}
-			fractalCalc.setIterations(getSliderValue(sliderIterationLevel
-					.getValue()));
+			fractalCalc.setIterations(getSliderValue(sliderIterationLevel.getValue()));
 		} catch (Exception e) {
 			fractalCalc = null;
 		}
@@ -481,8 +392,7 @@ public class MainWindow extends javax.swing.JFrame implements ActionListener,
 			RedrawView();
 		}
 		if (e.getSource().equals(comboDeviceList)) {
-			recreateCalculator(comboPlatformList.getSelectedIndex(),
-					comboDeviceList.getSelectedIndex());
+			recreateCalculator(comboPlatformList.getSelectedIndex(), comboDeviceList.getSelectedIndex());
 			RedrawView();
 		}
 		if (e.getSource().equals(checkHighPrecision)) {
@@ -493,23 +403,23 @@ public class MainWindow extends javax.swing.JFrame implements ActionListener,
 		}
 		if (e.getSource().equals(switchFractalMode)) {
 			if (fractalCalc != null) {
-				fractalCalc
-						.switchMode(switchFractalMode.isSelected() ? FractalModes.JULIA
-								: FractalModes.MANDELBROT);
+				fractalCalc.switchMode(switchFractalMode.isSelected() ? FractalModes.JULIA : FractalModes.MANDELBROT);
 				RedrawView();
 			}
 		}
 		if (e.getSource().equals(comboFractalType)) {
 			if (fractalCalc != null) {
-				fractalCalc.setExponent((int) Integer.parseInt(comboFractalType
-						.getSelectedItem().toString()));
+				fractalCalc.setExponent((int) Integer.parseInt(comboFractalType.getSelectedItem().toString()));
 				RedrawView();
 			}
 		}
 	}
 
-	private void checkHWSupport(int pid, int did) {
-		boolean _64bitsupport = CLUtils.isExtSupported(pid, did, "cl_khr_fp64");
+	private void checkHWSupport() {
+		if (fractalCalc == null)
+			return;
+
+		boolean _64bitsupport = fractalCalc.getDevice().isExtSupported("cl_khr_fp64");
 		if (!_64bitsupport)
 			checkHighPrecision.setSelected(false);
 		checkHighPrecision.setEnabled(_64bitsupport);
@@ -519,7 +429,7 @@ public class MainWindow extends javax.swing.JFrame implements ActionListener,
 		DefaultComboBoxModel<String> m = new DefaultComboBoxModel<String>();
 		int selected = comboPlatformList.getSelectedIndex();
 		if (selected != -1) {
-			String[] devices = CLUtils.GetCLDeviceDetails(selected);
+			String[] devices = CLDevice.GetCLDeviceNames(selected);
 			for (int i = 0; i < devices.length; i++) {
 				m.addElement(devices[i].trim());
 			}
@@ -530,10 +440,6 @@ public class MainWindow extends javax.swing.JFrame implements ActionListener,
 	private void populateFractalModesList() {
 		DefaultComboBoxModel<Integer> m = new DefaultComboBoxModel<Integer>();
 		int beginIndex = 0;
-		/*for (int i = -6; i <= -2; i++) {
-			m.addElement(i);
-			beginIndex++;
-		}*/
 		for (int i = 2; i <= 16; i++) {
 			m.addElement(i);
 		}
@@ -545,7 +451,7 @@ public class MainWindow extends javax.swing.JFrame implements ActionListener,
 		if (fractalCalc != null) {
 			try {
 				imagePanel.updateImageSize();
-				fractalCalc.updateImage( imagePanel.getImageByteArray());
+				fractalCalc.drawImage(imagePanel.getImageByteArray());
 				imagePanel.repaint();
 			} catch (Exception e) {
 				e.printStackTrace(System.err);
@@ -558,11 +464,8 @@ public class MainWindow extends javax.swing.JFrame implements ActionListener,
 	public void stateChanged(ChangeEvent arg) {
 
 		if (arg.getSource() == sliderIterationLevel && fractalCalc != null) {
-			fractalCalc.setIterations(getSliderValue(sliderIterationLevel
-					.getValue()));
-			lblIter.setText(iterTxt
-					+ String.valueOf(getSliderValue(sliderIterationLevel
-							.getValue())));
+			fractalCalc.setIterations(getSliderValue(sliderIterationLevel.getValue()));
+			lblIter.setText(iterTxt + String.valueOf(getSliderValue(sliderIterationLevel.getValue())));
 			RedrawView();
 		}
 	}
@@ -570,8 +473,8 @@ public class MainWindow extends javax.swing.JFrame implements ActionListener,
 	@Override
 	public void OnDragView(int x, int y) {
 		if (fractalCalc != null) {
-			fractalCalc.modPosx((float)x * -0.001f);
-			fractalCalc.modPosy((float)y * -0.001f);
+			fractalCalc.modPosx((float) x * -0.001f);
+			fractalCalc.modPosy((float) y * -0.001f);
 			RedrawView();
 		}
 	}
@@ -579,7 +482,7 @@ public class MainWindow extends javax.swing.JFrame implements ActionListener,
 	@Override
 	public void OnWheelEvent(int wheelRotation) {
 		if (fractalCalc != null) {
-			if ( wheelRotation > 0 )
+			if (wheelRotation > 0)
 				fractalCalc.setZoom(fractalCalc.getZoom() * zoomFactor);
 			else
 				fractalCalc.setZoom(fractalCalc.getZoom() / zoomFactor);

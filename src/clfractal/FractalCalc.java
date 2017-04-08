@@ -2,16 +2,16 @@ package clfractal;
 
 import static org.jocl.CL.*;
 
-import java.awt.image.BufferedImage;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.jocl.Pointer;
 import org.jocl.Sizeof;
-import org.jocl.cl_mem;
 
 import clframework.common.CLContext;
 import clframework.common.CLDevice;
 import clframework.common.CLKernel;
-import clframework.common.CLUtils;
+import clframework.common.MemObject;
 
 public class FractalCalc {
 
@@ -26,14 +26,14 @@ public class FractalCalc {
 	private double savedposx = 0, savedposy = 0, savedzoom = 2.0f;
 	private double juliaposx, juliaposy;
 	private boolean highPrecision = false;
-	private boolean GLSharing = false;
 	private long lastExecTime;
 	private long lastTotalTime;
 	private int width = 1, height = 1;
 
+	private CLDevice clDevice = null;
 	private CLContext context = null;
 	private CLKernel kernel = null;
-	private static cl_mem memObjects[] = new cl_mem[3];
+	private MemObject intParams, floatParams, imgBuffer;
 
 	int srcArrayA[] = new int[4];
 	float srcArrayB[] = new float[6];
@@ -41,14 +41,34 @@ public class FractalCalc {
 	long global_work_size[] = new long[] { 0, 0 };
 	long local_work_size[] = new long[] { 8, 8 };
 	boolean useExplicitLocalWorkSize = true;
+	String kernelname = "mandelbrot";
 
-	private int platformid, deviceid;
+	private void UpdateKernelName(){
+	    kernelname = fractalMode == FractalModes.JULIA ? "julia" : "mandelbrot";
+	    if (exponent != 2) {
+	        kernelname += "N";
+	    }
+	}
+	
+	public CLDevice getDevice(){return clDevice;}
 
-	public FractalCalc(ImagePanel img, int platformid, int deviceid) throws Exception {
-		this.platformid = platformid;
-		this.deviceid = deviceid;
+	public FractalCalc(ImagePanel img, CLDevice device) throws Exception {
+		this.clDevice = device;
+
+		context = new CLContext(clDevice);
+
+		try {
+			int workDimensions = clDevice.getDeviceIntProperty(CL_DEVICE_MAX_WORK_ITEM_DIMENSIONS);
+			long[] sizes = clDevice.getDeviceLongArrayProperty(CL_DEVICE_MAX_WORK_ITEM_SIZES, workDimensions);
+			long workgroupsize = clDevice.getDeviceLongProperty(CL_DEVICE_MAX_WORK_GROUP_SIZE);
+
+			useExplicitLocalWorkSize = (workDimensions >= 2 && sizes.length >= 2 && sizes[0] >= 8 && sizes[1] >= 8
+					&& workgroupsize >= 64);
+		} catch (Exception e) {
+			useExplicitLocalWorkSize = false;
+		}
+		
 		highPrecision = false;
-		CLSources.setUse64Bit(highPrecision);
 		fractalMode = FractalModes.MANDELBROT;
 	}
 
@@ -71,59 +91,36 @@ public class FractalCalc {
 	}
 
 	public void onResize(int w, int h) {
+		if (width == w || height == h || w < 1 || h < 1)
+			return;
+
 		width = w;
 		height = h;
-		memObjects[2] = null;
+		
+		if ( kernel != null && imgBuffer != null){
+			imgBuffer.delete();
+			imgBuffer = null;
+		}
 	}
 
-	public void updateImage(byte[] result) throws Exception {
-		if (context == null) {
-			try {
-                context = CLContext.createContext(platformid, deviceid);
-
-				try {
-					int workDimensions = (int) CLUtils.GetCLLongPropertyNoCast(platformid, deviceid,
-							CL_DEVICE_MAX_WORK_ITEM_DIMENSIONS);
-					long[] sizes = CLUtils.GetCLLongsProperty(platformid, deviceid, CL_DEVICE_MAX_WORK_ITEM_SIZES,
-							workDimensions);
-					long workgroupsize = CLUtils.GetCLLongProperty(platformid, deviceid, CL_DEVICE_MAX_WORK_GROUP_SIZE);
-
-					useExplicitLocalWorkSize = (workDimensions >= 2 && sizes.length >= 2 && sizes[0] >= 8
-							&& sizes[1] >= 8 && workgroupsize >= 64);
-				} catch (Exception e) {
-					useExplicitLocalWorkSize = false;
-				}
-			} catch (Exception e) {
-				if (context != null) {
-					context.delete();
-				}
-				throw e;
-			}
+	public void drawImage(byte[] result) throws Exception {
+		if (context == null || result == null || result.length < 1) {
+			return;
+		}
+		
+		if ( kernel == null){
+			String compileOptions = "-cl-fast-relaxed-math";
+			if ( highPrecision)
+				compileOptions += " -DUSE_HIGH_PRECISION";
+			
+			kernel = new CLKernel(context, new String[] { CLSources.readLocalFile("/clsrc/mandelbrot.cl") },
+					new String[] { "mandelbrot", "mandelbrotN", "julia", "juliaN" }, compileOptions);
 		}
 
-		if (kernel == null) {
-			try {
-				String kernelname = fractalMode == FractalModes.JULIA ? "julia"
-						: "mandelbrot";
-				if (exponent != 2) {
-					kernelname += "N";
-				}
-				kernel = new CLKernel(context, kernelname,
-						new String[] { CLSources.getSource() },
-						"-cl-fast-relaxed-math");
-			} catch (Exception e) {
-				if (kernel != null) {
-					kernel.delete();
-				}
-				throw e;
-			}
-		}
+		final int numPixels = width * height;
+		final long time1 = System.nanoTime();
 
-		int n = width * height;
-
-		long time1 = System.nanoTime();
-
-		srcArrayA[0] = Iterations; // 50 iterations
+		srcArrayA[0] = Iterations; // iteration count
 		srcArrayA[1] = width; // resx
 		srcArrayA[2] = height; // resy
 		srcArrayA[3] = exponent; // resy
@@ -144,18 +141,17 @@ public class FractalCalc {
 		Pointer srcB = highPrecision ? Pointer.to(srcArrayB_D) : Pointer.to(srcArrayB);
 		Pointer dst = Pointer.to(result);
 
-		memObjects[0] = clCreateBuffer(context.getContext(), CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR,
-				Sizeof.cl_int * srcArrayA.length, srcA, null);
-		memObjects[1] = clCreateBuffer(context.getContext(), CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR,
-				(highPrecision ? Sizeof.cl_double : Sizeof.cl_float) * srcArrayB.length, srcB, null);
+		intParams = MemObject.createMemObjectReadOnly(context, Sizeof.cl_int * srcArrayA.length, srcA);
+		floatParams = MemObject.createMemObjectReadOnly(context, (highPrecision ? Sizeof.cl_double : Sizeof.cl_float) * srcArrayB.length, srcB);
 
-		if (memObjects[2] == null) {
-			memObjects[2] = clCreateBuffer(context.getContext(), CL_MEM_WRITE_ONLY, Sizeof.cl_char * n, null, null);
+		if (imgBuffer == null) {
+			imgBuffer = MemObject.createMemObjectWriteOnly(context, Sizeof.cl_char * numPixels);
 		}
 
-		for (int i = 0; i < memObjects.length; i++) {
-			clSetKernelArg(kernel.getKernel(), i, Sizeof.cl_mem, Pointer.to(memObjects[i]));
-		}
+		List<MemObject> parameters = new ArrayList<MemObject>(3);
+		parameters.add(intParams);
+		parameters.add(floatParams);
+		parameters.add(imgBuffer);
 
 		if (useExplicitLocalWorkSize) {
 			global_work_size[0] = width
@@ -167,19 +163,17 @@ public class FractalCalc {
 			global_work_size[1] = height;
 		}
 
-		long time2 = System.nanoTime();
-		clEnqueueNDRangeKernel(context.getCommandQueue(), kernel.getKernel(), 2, null, global_work_size,
-				useExplicitLocalWorkSize ? local_work_size : null, 0, null, null);
+		final long time2 = System.nanoTime();
+		kernel.enqueueNDRangeKernel(kernelname, parameters, global_work_size, null, useExplicitLocalWorkSize ? local_work_size : null);
 
-		clEnqueueReadBuffer(context.getCommandQueue(), memObjects[2], CL_TRUE, 0, width * height * Sizeof.cl_char, dst,
-				0, null, null);
+		imgBuffer.ReadBufferWithBlocking(dst);
 
-		long time3 = System.nanoTime();
+		final long time3 = System.nanoTime();
 
-		for (int i = 0; i < memObjects.length; i++) {
-			clReleaseMemObject(memObjects[i]);
-			memObjects[i] = null;
-		}
+		intParams.delete();
+		intParams = null;
+		floatParams.delete();
+		floatParams = null;
 
 		lastTotalTime = time3 - time1;
 		lastExecTime = time3 - time2;
@@ -189,6 +183,12 @@ public class FractalCalc {
 		try {
 			context.delete();
 			kernel.delete();
+			if ( imgBuffer!= null )
+				imgBuffer.delete();
+			if ( intParams!= null )
+				intParams.delete();
+			if ( floatParams!= null )
+				floatParams.delete();
 		} catch (Exception e) {
 			e.printStackTrace(System.err);
 		}
@@ -243,17 +243,12 @@ public class FractalCalc {
 		if (this.highPrecision != highPrecision) {
 			kernel.delete();
 			kernel = null;
+			if ( imgBuffer != null ){
+				imgBuffer.delete();
+				imgBuffer = null;
+			}
 		}
-		CLSources.setUse64Bit(highPrecision);
 		this.highPrecision = highPrecision;
-	}
-
-	public boolean isGLSharing() {
-		return GLSharing;
-	}
-
-	public void setGLSharing(boolean gLSharing) {
-		GLSharing = gLSharing;
 	}
 
 	public long getLastExecTime() {
@@ -262,14 +257,6 @@ public class FractalCalc {
 
 	public long getLastTotalTime() {
 		return lastTotalTime / 1000000;
-	}
-
-	public int getPlatformid() {
-		return platformid;
-	}
-
-	public int getDeviceid() {
-		return deviceid;
 	}
 
 	public void switchMode(FractalModes mode) {
@@ -292,16 +279,13 @@ public class FractalCalc {
 			zoom = savedzoom;
 		}
 
-		kernel = null;
-
 		fractalMode = mode;
+		
+		UpdateKernelName();
 	}
 
 	public void setExponent(int exp) {
-		if ((exponent == 2 && exp != 2) || (exp == 2 && exponent != 2)) {
-			kernel = null;
-		}
 		exponent = exp;
-
+		UpdateKernelName();
 	}
 }
