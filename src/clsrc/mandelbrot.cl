@@ -41,7 +41,6 @@ __kernel void mandelbrot(__constant const int *intParams, __constant const RealN
 		return; 
 		
 	Complex C; 
-	Complex sum; 
 	Complex previous; 
 	 
 	//coordinates in -1 to +1 
@@ -53,9 +52,6 @@ __kernel void mandelbrot(__constant const int *intParams, __constant const RealN
 	C.r = realParams[0] + realParams[2] * screenx; //  x 
 	C.i = realParams[1] + (realParams[2] * screeny) * realParams[3]; //  y 
 	 
-	sum.r = 0; //  x 
-	sum.i = 0; //  y 
-	
 	previous.r = 0; 
 	previous.i = 0; 
 	 
@@ -72,11 +68,8 @@ __kernel void mandelbrot(__constant const int *intParams, __constant const RealN
 			return;
 		} 
 		
-		sum.r = (x2 - y2) + C.r; 
-		sum.i = (previous.i * previous.r * 2) + C.i; 
-		 
-		previous.r = sum.r; 
-		previous.i = sum.i; 
+		previous.i = (previous.i * previous.r * 2) + C.i;
+		previous.r = (x2 - y2) + C.r; 
 	} 
 	 
 	output[imgid] = -128;
@@ -90,7 +83,6 @@ __kernel void julia(__constant const int *intParams, __constant const RealNumber
 		return; 
 		
 	Complex C; 
-	Complex sum; 
 	Complex previous; 
 	 
 	//coordinates in -1 to +1 
@@ -102,9 +94,6 @@ __kernel void julia(__constant const int *intParams, __constant const RealNumber
 	C.r = realParams[4]; 
 	C.i = realParams[5];
 	 
-	sum.r = 0; //  x 
-	sum.i = 0; //  y 
-	
 	previous.r = realParams[0] + realParams[2] * screenx; 
 	previous.i = realParams[1] + (realParams[2] * screeny) * realParams[3]; 
 	 
@@ -121,11 +110,8 @@ __kernel void julia(__constant const int *intParams, __constant const RealNumber
 			return;
 		} 
 		
-		sum.r = (x2 - y2) + C.r; 
-		sum.i = (previous.i * previous.r * 2) + C.i; 
-		 
-		previous.r = sum.r; 
-		previous.i = sum.i; 
+		previous.i = (previous.i * previous.r * 2) + C.i;
+		previous.r = (x2 - y2) + C.r; 
 	} 
 	 
 	output[imgid] = -128;
@@ -140,7 +126,6 @@ __kernel void mandelbrotN(__constant const int *intParams, __constant const Real
 		return; 
 		
 	Complex C; 
-	Complex sum; 
 	Complex previous; 
 	 
 	//coordinates in -1 to +1 
@@ -163,17 +148,14 @@ __kernel void mandelbrotN(__constant const int *intParams, __constant const Real
 		Complex z_n; 
 		z_n = cPow(previous, exponent);
 		
-		sum.r = z_n.r + C.r;
-		sum.i = z_n.i + C.i;
+		previous.r = z_n.r + C.r;
+		previous.i = z_n.i + C.i;
 	
-		if (sum.r * sum.r + sum.i * sum.i > 4)  //spares the sqrt function by using 4 instead of 2
+		if (previous.r * previous.r + previous.i * previous.i > 4)  //spares the sqrt function by using 4 instead of 2
 		{ 
 			output[imgid] = ((i * 155) / iterationLimit) - 28;
 			return;
 		} 
-		
-		previous.r = sum.r; 
-		previous.i = sum.i; 
 	} 
 	 
 	output[imgid] = -128;
@@ -187,7 +169,6 @@ __kernel void juliaN(__constant const int *intParams, __constant const RealNumbe
 		return; 
 		
 	Complex C; 
-	Complex sum; 
 	Complex previous; 
 	 
 	//coordinates in -1 to +1 
@@ -199,9 +180,6 @@ __kernel void juliaN(__constant const int *intParams, __constant const RealNumbe
 	C.r = realParams[4]; 
 	C.i = realParams[5];
 	 
-	sum.r = 0; //  x 
-	sum.i = 0; //  y 
-	
 	previous.r = realParams[0] + realParams[2] * screenx; 
 	previous.i = realParams[1] + (realParams[2] * screeny) * realParams[3]; 
 	 
@@ -212,17 +190,14 @@ __kernel void juliaN(__constant const int *intParams, __constant const RealNumbe
 	{ 
 		Complex z_n = cPow(previous, exponent);
 		
-		sum.r = z_n.r + C.r;
-		sum.i = z_n.i + C.i;
+		previous.r = z_n.r + C.r;
+		previous.i = z_n.i + C.i;
 	
-		if (sum.r * sum.r + sum.i * sum.i > 4)  //spares the sqrt function by using 4 instead of 2
+		if (previous.r * previous.r + previous.i * previous.i > 4)  //spares the sqrt function by using 4 instead of 2
 		{ 
 			output[imgid] = ((i * 155) / iterationLimit) - 28;
 			return;
 		} 
-		
-		previous.r = sum.r; 
-		previous.i = sum.i; 
 	} 
 	 
 	output[imgid] = -128;

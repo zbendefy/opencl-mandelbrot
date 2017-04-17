@@ -42,7 +42,7 @@ public class MainWindow extends javax.swing.JFrame implements ActionListener, Ch
 	private JCheckBox switchFractalMode, checkHighPrecision;
 
 	private static final String iterTxt = "Iterations: ";
-	private static final String version = "1.3c";
+	private static final String version = "1.3d";
 
 	private final double moveFactor = 0.2;
 	private final double zoomFactor = 1.4;
@@ -471,10 +471,15 @@ public class MainWindow extends javax.swing.JFrame implements ActionListener, Ch
 	}
 
 	@Override
-	public void OnDragView(int x, int y) {
+	public void OnDragView(int x, int y, int btn) {
 		if (fractalCalc != null) {
-			fractalCalc.modPosx((float) x * -0.001f);
-			fractalCalc.modPosy((float) y * -0.001f);
+            if ((btn >= 2) && fractalCalc.getFractalMode() != FractalModes.MANDELBROT) {
+                fractalCalc.modJuliaPosx((float) x * -0.0002f);
+                fractalCalc.modJuliaPosy((float) y * -0.0002f);
+            } else {
+                fractalCalc.modPosx((float) x * -0.001f);
+                fractalCalc.modPosy((float) y * -0.001f);
+            }
 			RedrawView();
 		}
 	}

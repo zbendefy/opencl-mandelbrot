@@ -23,7 +23,7 @@ public class FractalCalc {
 	private int Iterations = 25;
 	private int exponent = 2;
 	private double posx = 0, posy = 0, zoom = 2.0f;
-	private double savedposx = 0, savedposy = 0, savedzoom = 2.0f;
+	private double savedzoom = 2.0f;
 	private double juliaposx, juliaposy;
 	private boolean highPrecision = false;
 	private long lastExecTime;
@@ -73,7 +73,7 @@ public class FractalCalc {
 	}
 
 	public double[] getState() {
-		return new double[] { posx, posy, zoom, savedposx, savedposy, savedzoom, juliaposx, juliaposy,
+		return new double[] { posx, posy, zoom, savedzoom, juliaposx, juliaposy,
 				fractalMode == FractalModes.JULIA ? 1.0 : -1.0, exponent };
 	}
 
@@ -81,16 +81,14 @@ public class FractalCalc {
 		posx = state[0];
 		posy = state[1];
 		zoom = state[2];
-		savedposx = state[3];
-		savedposy = state[4];
-		savedzoom = state[5];
-		juliaposx = state[6];
-		juliaposy = state[7];
-		fractalMode = state[8] > 0 ? FractalModes.JULIA : FractalModes.MANDELBROT;
-		exponent = (int) state[9];
+		savedzoom = state[3];
+		juliaposx = state[4];
+		juliaposy = state[5];
+		fractalMode = state[6] > 0 ? FractalModes.JULIA : FractalModes.MANDELBROT;
+		exponent = (int) state[7];
 	}
 
-	public void onResize(int w, int h) {
+	public synchronized void onResize(int w, int h) {
 		if ((width == w && height == h) || w < 1 || h < 1)
 			return;
 
@@ -103,7 +101,7 @@ public class FractalCalc {
 		}
 	}
 
-	public void drawImage(byte[] result) throws Exception {
+	public synchronized void drawImage(byte[] result) throws Exception {
 		if (context == null || result == null || result.length < 1) {
 			return;
 		}
@@ -239,6 +237,34 @@ public class FractalCalc {
 		return highPrecision;
 	}
 
+    public double getJuliaposx() {
+        return juliaposx;
+    }
+
+    public void setJuliaposx(double juliaposx) {
+        this.juliaposx = juliaposx;
+    }
+
+    public double getJuliaposy() {
+        return juliaposy;
+    }
+
+    public void setJuliaposy(double juliaposy) {
+        this.juliaposy = juliaposy;
+    }
+
+    public void modJuliaPosy(double posy) {
+        this.juliaposy += posy * zoom;
+    }
+
+    public void modJuliaPosx(double posx) {
+        this.juliaposx += posx * zoom;
+    }
+
+    public FractalModes getFractalMode() {
+        return fractalMode;
+    }
+
 	public void setHighPrecision(boolean highPrecision) {
 		if (this.highPrecision != highPrecision) {
 			kernel.delete();
@@ -265,8 +291,6 @@ public class FractalCalc {
 		}
 
 		if (mode == FractalModes.JULIA) {
-			savedposx = posx;
-			savedposy = posy;
 			savedzoom = zoom;
 			juliaposx = posx;
 			juliaposy = posy;
@@ -274,8 +298,8 @@ public class FractalCalc {
 			posy = 0;
 			zoom = 2.0f;
 		} else if (mode == FractalModes.MANDELBROT) {
-			posx = savedposx;
-			posy = savedposy;
+			posx = juliaposx;
+			posy = juliaposy;
 			zoom = savedzoom;
 		}
 

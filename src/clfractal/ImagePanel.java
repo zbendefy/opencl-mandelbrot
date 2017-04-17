@@ -1,6 +1,7 @@
 package clfractal;
 
 import java.awt.Graphics;
+import java.awt.event.ActionEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionListener;
 import java.awt.event.MouseWheelEvent;
@@ -11,6 +12,7 @@ import java.awt.image.DataBufferByte;
 import java.awt.image.IndexColorModel;
 
 import javax.swing.JPanel;
+import javax.swing.SwingUtilities;
 
 public class ImagePanel extends JPanel implements MouseMotionListener, MouseWheelListener {
 
@@ -96,7 +98,15 @@ public class ImagePanel extends JPanel implements MouseMotionListener, MouseWhee
 	public void mouseDragged(MouseEvent e) {
 		if (mouseEventListener != null)
 		{
-			mouseEventListener.OnDragView(e.getX() - lastX, e.getY() - lastY);
+            int btn = 0;
+            if (SwingUtilities.isLeftMouseButton(e))
+                btn = 1;
+            else if (SwingUtilities.isRightMouseButton(e))
+                btn = 2;
+            else if (SwingUtilities.isMiddleMouseButton(e))
+                btn = 3;
+            
+            mouseEventListener.OnDragView(e.getX() - lastX, e.getY() - lastY, btn);
 		}
 		lastX = e.getX();
 		lastY = e.getY();
